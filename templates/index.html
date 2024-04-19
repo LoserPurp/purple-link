@@ -13,41 +13,55 @@
         <div class="trapezoid2"></div>
     </div>
         
-    <div>
-        <h1>Add URL</h1>
-            <form method="POST" action="/" class="addUrlContainer">
+    <div class="project">
+        
+        <div class="addUrlContainer">
+            <form method="POST" action="/" class="addUrlFormContainer">
+                <h1>Add URL</h1>
+                <div class="enterUrlContainer">
                 <label for="url">Enter URL:</label>
                 <input type="text" id="url" name="url">
 
                 <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
-                <div id="expiry" hidden="true">
-                    <label for="expire">Hours Active:</label>
-                    <input type="number" id="expire" name="expire">
-                    <label for="expire">Max Uses:</label>
-                    <input type="number" id="maxUses" name="maxUses">
                 </div>
-
-                <button type="submit">Submit</button>   
+                <div id="expiry" style="display: none;" hidden="true">
+                    <div class="hoursActiveContainer">
+                        <label for="expire">Hours Active:</label>
+                        <input type="number" id="expire" name="expire">
+                    </div>
+                    <div class="maxUsesContainer">
+                        <label for="expire">Max Uses:</label>
+                        <input type="number" id="maxUses" name="maxUses">
+                    </div>
+                </div>
+                <div class="buttonUrlContainer">
+                    <button type="submit">Submit</button>
+                </div>
+                
             </form>
-        <h1>URL List</h1>
-        <ul id="endpointList">
-            {% for key, path, url in entries %}
-                <li>
-                    <div class="urlListContainer">
-                        <a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a>
-                        <div class="urlContainer">
-                            <a class="theURL"  id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a>
-                            <div class="urlButtonContainer">
-                                <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
-                                <img class="iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
-                                <img class="iconEdit" src="{{ url_for('static', filename='img/edit.svg') }}" alt="Edit" onclick="editEndpoint('{{ key }}')">
-                                <img class="iconRemove" src="{{ url_for('static', filename='img/trashcan.svg') }}" alt="Remove" onclick="removeEndpoint('{{ key }}')">
+        </div>
+
+        <div class="endpointListContainer">
+            <p>URL List</p>
+            <ul id="endpointList">
+                {% for key, path, url in entries %}
+                    <li>
+                        <div class="urlListContainer">
+                            <a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a>
+                            <div class="urlContainer">
+                                <a class="theURL"  id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a>
+                                <div class="urlButtonContainer">
+                                    <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
+                                    <img class="iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
+                                    <img class="iconEdit" src="{{ url_for('static', filename='img/edit.svg') }}" alt="Edit" onclick="editEndpoint('{{ key }}')">
+                                    <img class="iconRemove" src="{{ url_for('static', filename='img/trashcan.svg') }}" alt="Remove" onclick="removeEndpoint('{{ key }}')">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
         <div class="infoBox" id="infoBox" style="display: none;">
             <div class="boxBox">
@@ -66,7 +80,7 @@
                     <div id="charlesLeclerc">
                         <p>NOOOOOO! (2022 French Grand Prix)</p>
                         <p>I AM STUPID, I AM STUPID</p>
-                        <p>OMG. I never looked to good</p>
+                        <p>OMG. I never looked so good</p>
                         <p>Im coming on your camera mate</p>
                         <p>Nothing, just an inchident</p>
                     </div>

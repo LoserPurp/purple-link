@@ -89,6 +89,12 @@ function copyEndpoint(index) {
 //Flips element from hidden to visible
 function setExpiry() {
     document.getElementById("expiry").hidden = !document.getElementById("expiry").hidden
+
+    //Flips the style from none to flex
+    document.getElementById("expiry").style.display = 'flex'
+    if (document.getElementById("expiry").hidden) {
+        document.getElementById("expiry").style.display = 'none'
+    }
 }
 
 
