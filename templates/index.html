@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Purple Link</title>
+    </head>
+    <body>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+
+    <div class="trapezoidContainer">
+        <div class="trapezoid"></div>
+        <div class="trapezoid2"></div>
+    </div>
+        
+    <div>
+        <h1>Add URL</h1>
+            <form method="POST" action="/" class="addUrlContainer">
+                <label for="url">Enter URL:</label>
+                <input type="text" id="url" name="url">
+
+                <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
+                <div id="expiry" hidden="true">
+                    <label for="expire">Hours Active:</label>
+                    <input type="number" id="expire" name="expire">
+                    <label for="expire">Max Uses:</label>
+                    <input type="number" id="maxUses" name="maxUses">
+                </div>
+
+                <button type="submit">Submit</button>   
+            </form>
+        <h1>URL List</h1>
+        <ul id="endpointList">
+            {% for key, path, url in entries %}
+                <li>
+                    <div class="urlListContainer">
+                        <a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a>
+                        <div class="urlContainer">
+                            <a class="theURL"  id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a>
+                            <div class="urlButtonContainer">
+                                <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
+                                <img class="iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
+                                <img class="iconEdit" src="{{ url_for('static', filename='img/edit.svg') }}" alt="Edit" onclick="editEndpoint('{{ key }}')">
+                                <img class="iconRemove" src="{{ url_for('static', filename='img/trashcan.svg') }}" alt="Remove" onclick="removeEndpoint('{{ key }}')">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="infoBox" id="infoBox" style="display: none;">
+            <div class="boxBox">
+
+                <div id="changeEndpointContainer" hidden="true">
+                    <h2>Change Endpoint</h2>
+                    <form method="POST" action="/change_endpoint">
+                        <input type="text" id="index" name="index" hidden="true">
+                        <label for="new_endpoint">New Endpoint:</label>
+                        <input type="text" id="new_endpoint" name="endpoint">
+                        <button type="submit">Submit</button>
+                    </form>
+                </div>
+                <div id="qrInfo">
+                    <img id="qrCode">
+                    <div id="charlesLeclerc">
+                        <p>NOOOOOO! (2022 French Grand Prix)</p>
+                        <p>I AM STUPID, I AM STUPID</p>
+                        <p>OMG. I never looked to good</p>
+                        <p>Im coming on your camera mate</p>
+                        <p>Nothing, just an inchident</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    </body>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</html>

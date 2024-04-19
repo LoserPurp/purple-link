@@ -1,0 +1,256 @@
+.roboto-thin {
+    font-family: "Roboto", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+  }
+  
+  .roboto-light {
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  .roboto-regular {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .roboto-medium {
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  .roboto-bold {
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+  .roboto-black {
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
+  
+  .roboto-thin-italic {
+    font-family: "Roboto", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+  }
+  
+  .roboto-light-italic {
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+  }
+  
+  .roboto-regular-italic {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  .roboto-medium-italic {
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+  }
+  
+  .roboto-bold-italic {
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+  }
+  
+  .roboto-black-italic {
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+  }
+  
+
+
+
+.iconCopy,
+.iconEdit,
+.iconRemove,
+.iconTimer,
+.iconQR {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border-radius: 25%; 
+}
+
+head, body {
+    background: #1c1c1d;
+    color: #fff;
+}
+
+ul#endpointList {
+    display: flex;
+    flex-direction: column;
+    background: #2c2c2c;
+    border-radius: 10px;
+    margin: 0;
+    padding: 10px 0px;
+}
+
+img:not(#qrCode)  {
+    filter: invert(1);
+}
+
+a {
+    color: white;
+}
+
+li:nth-child(2n) {
+    background: #3a3939;
+}
+
+.infoBox {
+    width: 100dvw;
+    height: 100dvh;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    backdrop-filter: blur(3px);
+}
+
+.boxBox {
+    max-width: 500px;
+    width: 70%;
+    border-radius: 10px;
+    height: 50%;
+    background: #181818bf;
+    display: flex;
+    padding: 10px;
+    box-shadow: #00000096 0 0px 20px 10px, #30303014 0 0px 15px 9px;
+    /* border: 4px solid #303030; */
+    /* backdrop-filter: blur(792px); */
+}
+
+
+img#qrCode {
+    max-height: 40%;
+}
+
+div#qrInfo {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+}
+/* 
+
+#endpointList > li > a:nth-child(2) {
+    flex: auto;
+}
+
+li {
+    display: inherit;
+} */
+
+
+/* .addUrlContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+div#expiry {
+    display: flex;
+    flex-direction: column;
+} */
+
+
+
+.urlContainer > a {
+    width: 330px;
+}
+
+.urlEndpoint,  .urlContainer > a {
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Display an ellipsis (...) to indicate text overflow */
+}
+
+
+.urlListContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+    width: calc(100% - 30px);
+} 
+
+.urlButtonContainer > img {
+    padding: 0 3px;
+    height: 28px;
+    width: 28px;
+}
+
+a {
+    font-size: 18px;
+}
+
+a, p, h1, h2, h3, label, button, input{
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.urlContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.urlButtonContainer {
+    display: flex;
+    align-items: center;
+}
+
+
+li {
+    display: flex;
+    justify-content: center;
+}
+
+.trapezoidContainer {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    align-items: center;
+    justify-content: space-evenly;
+    pointer-events: none;
+}
+
+.trapezoid {
+	border-bottom: 200px solid #5e0ebd;
+	border-left: 110px solid transparent;
+	border-right: 210px solid transparent;
+    border-radius: 100%;
+	height: 0;
+	width: 50vw;
+    pointer-events: none;
+    filter: blur(20vw);
+    z-index: -1;
+}
+.trapezoid2 {
+	border-bottom: 200px solid #0e1dbd;
+	border-left: 110px solid transparent;
+	border-right: 210px solid transparent;
+    border-radius: 100%;
+	height: 0;
+	width: 50vw;
+    pointer-events: none;
+    filter: blur(20vw);
+    z-index: -1;
+}

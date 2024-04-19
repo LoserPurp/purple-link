@@ -1,0 +1,15 @@
+url shortener
+edit/delete endpoints
+expiry date
+custom endpoints
+QR code generator
+password protection
+
+!TODO
+    max uses per endpoint
+logging
+stats page
+users
+redirect page
+url validation
+rate limitaion

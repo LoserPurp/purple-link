@@ -1,0 +1,26 @@
+{
+    "2": {
+        "endpoint": "/htFSh",
+        "url": "https://nx.purplexity.no",
+        "expiry": "",
+        "pass": "",
+        "redirect": "True",
+        "uses": -1
+    },
+    "3": {
+        "endpoint": "/oOXNp",
+        "url": "http://192.168.10.116:7237/JxpZZ",
+        "expiry": "",
+        "pass": "",
+        "redirect": false,
+        "uses": "1"
+    },
+    "1": {
+        "endpoint": "/pSHNH",
+        "url": "https://vm.purplexity.no",
+        "expiry": "2024-04-19 11:00:11.692516",
+        "pass": "",
+        "redirect": false,
+        "uses": "5"
+    }
+}

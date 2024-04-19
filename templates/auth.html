@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Input</title>
+</head>
+<body>
+    <form method="post">
+        <input type="hidden" name="path" value="{{ path }}">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+        <button type="submit">Submit</button>
+    </form>
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>

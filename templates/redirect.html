@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var seconds = {{ wait }}/1000;
+
+            function countdown() {
+                var counterElement = document.getElementById('counter');
+                if (counterElement) {
+                    counterElement.innerHTML = seconds;
+                    if (seconds <= 0) {
+                        var url = "{{ url }}";
+                        window.location.href = url;
+                    } else {
+                        seconds--;
+                        setTimeout(countdown, 1000); // Update every 1 second
+                    }
+                } else {
+                    console.error("Counter element not found!");
+                }
+            }
+
+            countdown();
+        });
+    </script>
+</head>
+<body>
+    <p>Redirecting you in <span id="counter">{{ wait/1000 }}</span> seconds...</p>
+</body>
+</html>
