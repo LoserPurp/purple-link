@@ -1,1 +1,26 @@
-{}
+{
+    "1": {
+        "endpoint": "/ZotSI",
+        "url": "https://www.youtube.com",
+        "expiry": "",
+        "pass": "",
+        "redirect": false,
+        "uses": -2
+    },
+    "3": {
+        "endpoint": "/pqVVr",
+        "url": "https://www.youtube.com",
+        "expiry": "",
+        "pass": "test",
+        "redirect": false,
+        "uses": 1
+    },
+    "2": {
+        "endpoint": "/gLYyP",
+        "url": "https://google.com",
+        "expiry": "",
+        "pass": "test",
+        "redirect": false,
+        "uses": -1
+    }
+}

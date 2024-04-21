@@ -68,15 +68,16 @@ def not_found():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    # check_time()
+    check_time()
 
     if request.method == "POST":
-        # Get URL from the form
+        #get parameters from the form
         url = request.form.get("url")
         expire = request.form.get("expire")
+        password = request.form.get("pass")
 
         if request.form.get("maxUses"):
-            uses = request.form.get("maxUses")
+            uses = int(request.form.get("maxUses"))
         else:
             uses = -1
 
@@ -102,11 +103,11 @@ def index():
             if expire:
                 expire_time = add_time(int(expire))
                 #add random string, URL and expiration date to data
-                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": expire_time, "pass": "", "redirect": False, "uses": uses}
+                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": expire_time, "pass": password, "redirect": False, "uses": uses}
             else:
                 
                 #add random string and URL to data
-                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": "", "pass": "", "redirect": False, "uses": uses}
+                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": "", "pass": password, "redirect": False, "uses": uses}
             
             #save updated data
             fetchUrl.save_data(data)
@@ -144,7 +145,7 @@ def make_qr():
     # Create an in-memory buffer to store the image
     img_buffer = io.BytesIO()
     img = qr.make_image(fill_color="black", back_color="white")
-    img.save(img_buffer, format='PNG')
+    img.save(img_buffer)
 
     # Move the buffer pointer to the beginning
     img_buffer.seek(0)
@@ -208,10 +209,13 @@ def redirect_url(path):
         fetchUrl.remove_endpoint(key)
         return not_found()
 
+
     if not expected_password:
         if fetchUrl.redirect(endpoint):
             return redirect(f'/redirect?endpoint={endpoint}')
         else:
+            if uses > 0:
+                fetchUrl.change_uses(fetchUrl.find_key_by_endpoint(endpoint), (uses-1))
             return redirect(url)
 
 
@@ -222,6 +226,8 @@ def redirect_url(path):
         
         if provided_password == expected_password:
             # If the password is correct, redirect
+            if uses > 0:
+                fetchUrl.change_uses(fetchUrl.find_key_by_endpoint(endpoint), (uses-1))
             return redirect(url)
         else:
             # If the password is incorrect, render the form again with an error message
@@ -236,27 +242,6 @@ def redirect_page():
     endpoint = request.args.get('endpoint')
     url = fetchUrl.find_endpoint(endpoint)
     return render_template('redirect.html', url=url, wait=5000)
-
-#!!working code do NOT remove!! 
-
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-# def redirect_url(path):
-#     #construct the endpoint path
-#     endpoint_path = '/' + path if path else '/'
-#     url = fetchUrl.find_endpoint(endpoint_path)
-
-#     url_pass = fetchUrl.find_endpoint_pass(endpoint_path)
-
-#     if url:
-#         if not url_pass:
-#             return redirect(url)
-#         else:
-#             return not_found()
-#     else:
-#         #return an error message if the endpoint path is not found in the list
-#         return not_found()
-
 
 
 if __name__ == '__main__':

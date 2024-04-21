@@ -76,6 +76,17 @@ def change_endpoint(index, endpoint):
         return False
 
 
+def change_uses(index, uses):
+    with open('urls.json', 'r') as file:
+        data = json.load(file)
+        if str(index) in data:
+            data[str(index)]['uses'] = uses
+            with open('urls.json', 'w') as file:
+                json.dump(data, file, indent=4)
+            return True
+        return False
+
+
 #removes selceted endpoint from json file
 def remove_endpoint(index):
     with open('urls.json', 'r') as file:

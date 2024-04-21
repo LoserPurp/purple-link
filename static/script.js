@@ -143,7 +143,7 @@ function downloadQr() {
     // Create a temporary anchor element
     var downloadLink = document.createElement("a");
     downloadLink.href = image.src;
-    downloadLink.download = "qrcode.jpg"; // Specify the filename for the downloaded image
+    downloadLink.download = "qrcode.jpg";
 
     // Append the anchor element to the body
     document.body.appendChild(downloadLink);
