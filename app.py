@@ -114,7 +114,7 @@ def index():
             #redirect to the index page
             return redirect('/')
         else:
-            return "URL not found in form data!"
+            return redirect('/')
     else:
         #load existing data
         data = fetchUrl.load_data()

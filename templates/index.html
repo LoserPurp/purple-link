@@ -70,19 +70,38 @@
                     <h2>Change Endpoint</h2>
                     <form method="POST" action="/change_endpoint">
                         <input type="text" id="index" name="index" hidden="true">
-                        <label for="new_endpoint">New Endpoint:</label>
+
+                        <label for="new_endpoint">Change Endpoint:</label>
                         <input type="text" id="new_endpoint" name="endpoint">
+
+                        <label for="new_url">Change URL:</label>
+                        <input type="text" id="new_url" name="url">
+                        
+                        <label for="">Change Expiry:</label>
+                        <input type="text" id="new_expiry" name="expiry">
+
+                        <label for="">Change Password:</label>
+                        <input type="text" id="new_password" name="password">
+                        <input type="text" id="old_password" name="passwordOld">
+
+                        <label for="">Uses Left:</label>
+                        <input type="text" id="new_uses" name="uses">
+
                         <button type="submit">Submit</button>
                     </form>
                 </div>
                 <div id="qrInfo">
                     <img id="qrCode">
                     <div id="charlesLeclerc">
+                        <a href=""></a>
                         <p>NOOOOOO! (2022 French Grand Prix)</p>
                         <p>I AM STUPID, I AM STUPID</p>
                         <p>OMG. I never looked so good</p>
                         <p>Im coming on your camera mate</p>
                         <p>Nothing, just an inchident</p>
+
+                        <button onclick="downloadQr()"> Download QR Code</button>
+
                     </div>
                 </div>
             </div>

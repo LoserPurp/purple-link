@@ -136,7 +136,25 @@ document.addEventListener("DOMContentLoaded", function() {
     // Add click event listener to the document
     document.addEventListener("click", handleClickOutside);
 });
+
+function downloadQr() {
+    var image = document.getElementById("qrCode");
     
+    // Create a temporary anchor element
+    var downloadLink = document.createElement("a");
+    downloadLink.href = image.src;
+    downloadLink.download = "qrcode.jpg"; // Specify the filename for the downloaded image
+
+    // Append the anchor element to the body
+    document.body.appendChild(downloadLink);
+
+    // Trigger a click event on the anchor element
+    downloadLink.click();
+
+    // Remove the anchor element from the body
+    document.body.removeChild(downloadLink);
+}
+
 
 window.onload = function() {
     var links = document.querySelectorAll('a.urlEndpoint');
