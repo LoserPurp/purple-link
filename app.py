@@ -12,6 +12,8 @@ import io
 import base64
 import validators
 
+from PIL import Image
+
 
 app = Flask(__name__)
 
@@ -39,7 +41,7 @@ def check_time():
             given_time_str = entry['expiry']
 
             #parse the string into a datetime object
-            given_time = datetime.strptime(given_time_str, "%Y-%m-%d %H:%M:%S.%f")
+            given_time = datetime.strptime(given_time_str, "%Y-%m-%d %H:%M")
 
             #check if current time is after the expiration
             if current_time > given_time:
@@ -55,8 +57,9 @@ def add_time(hours):
     delta = timedelta(hours=hours)
     updated_time = current_time + delta
 
-    # Save the current time as a string
-    current_time = str(updated_time)
+    # Convert the updated time to string and remove seconds and microseconds
+    current_time = updated_time.strftime("%Y-%m-%d %H:%M")
+
     return current_time
 
 
@@ -120,44 +123,73 @@ def index():
         #load existing data
         data = fetchUrl.load_data()
         
-        #extract key, paths and URLs from the data
-        entries = [(k, v["endpoint"], v["url"]) for k, v in data.items()]
+        #extract key, paths, URLs, expiry date and uses left from the data
+        entries = [
+            (
+                k, 
+                v["endpoint"], 
+                v["url"], 
+                "never" if not v["expiry"] else v["expiry"], 
+                "unlimited" if v["uses"] < 0 else v["uses"]
+            ) 
+                for k, v in data.items()
+        ]
         return render_template("index.html", entries=entries)
+
 
 
 @app.route("/qr", methods=["POST"])
 def make_qr():
     # Get the data from the request
-    index = request.url_root[:-1] + request.form.get('index')
+    index = request.form.get('index')
+    endpoint = request.url_root[:-1] + index
 
-    # Generate QR code
+    # Generate QR code with higher error correction level (ERROR_CORRECT_Q)
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,  # Increased error correction level
         box_size=10,
         border=2,
     )
 
     # Add the data to the QR code
-    qr.add_data(index)
-    qr.make(fit=True)
+    qr.add_data(endpoint)
 
-    # Create an in-memory buffer to store the image
+    # Generate QR code image
+    qr_img = qr.make_image(fill_color="black", back_color="white")
+
+    # Create a transparent mask with the shape of the QR code
+    qr_mask = Image.new('RGBA', qr_img.size, (255, 255, 255, 0))
+
+    # Load the placeholder image
+    placeholder_path = "static/img/placeholder.png"
+    placeholder_img = Image.open(placeholder_path)
+
+    # Get the size of the QR code image
+    qr_width, qr_height = qr_img.size
+
+    # Calculate the position to paste the placeholder image in the center of the QR code
+    x_offset = (qr_width - placeholder_img.width) // 2
+    y_offset = (qr_height - placeholder_img.height) // 2
+
+    # Paste the placeholder image onto the transparent mask
+    qr_mask.paste(placeholder_img, (x_offset, y_offset), placeholder_img)
+
+    # Composite the QR code image and the transparent mask
+    qr_img = Image.alpha_composite(qr_img.convert('RGBA'), qr_mask)
+
+    # Convert the modified QR code image to a base64-encoded data URL
     img_buffer = io.BytesIO()
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(img_buffer)
-
-    # Move the buffer pointer to the beginning
-    img_buffer.seek(0)
-
-    # Encode the image buffer as a base64 string
+    qr_img = qr_img.convert('RGB')  # Convert back to RGB before saving
+    qr_img.save(img_buffer, format="PNG")
     img_str = base64.b64encode(img_buffer.getvalue()).decode()
-
-    # Construct the data URL for embedding in HTML
     data_url = "data:image/png;base64," + img_str
 
-    # Return the data URL as JSON
-    return jsonify({"qr_image": data_url})
+    # Fetch data
+    entries = fetchUrl.load_data_from_endpoint(index)
+
+    # Return the data URL and entries as JSON
+    return jsonify({"qr_image": data_url, "about": entries})
 
 
 #change endpoint
@@ -200,12 +232,12 @@ def redirect_url(path):
     uses = fetchUrl.find_endpoint_uses(endpoint)
     url = fetchUrl.find_endpoint(endpoint)
     expected_password = fetchUrl.find_endpoint_pass(endpoint)
+    key = fetchUrl.find_key_by_endpoint(endpoint)
 
     if not url:
         return not_found()
 
     if not uses:
-        key = fetchUrl.find_key_by_endpoint(endpoint)
         fetchUrl.remove_endpoint(key)
         return not_found()
 
@@ -216,6 +248,8 @@ def redirect_url(path):
         else:
             if uses > 0:
                 fetchUrl.change_uses(fetchUrl.find_key_by_endpoint(endpoint), (uses-1))
+                if uses == 1:
+                    fetchUrl.remove_endpoint(key)
             return redirect(url)
 
 
@@ -228,6 +262,8 @@ def redirect_url(path):
             # If the password is correct, redirect
             if uses > 0:
                 fetchUrl.change_uses(fetchUrl.find_key_by_endpoint(endpoint), (uses-1))
+                if uses == 1:
+                    fetchUrl.remove_endpoint(key)
             return redirect(url)
         else:
             # If the password is incorrect, render the form again with an error message

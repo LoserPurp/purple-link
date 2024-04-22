@@ -3,13 +3,15 @@ edit/delete endpoints
 expiry date
 custom endpoints
 QR code generator
+QR code download
 password protection
+max uses per endpoint
+redirect page
+
 
 !TODO
-    max uses per endpoint
 logging
 stats page
 users
-redirect page
 url validation
 rate limitaion

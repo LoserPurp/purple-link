@@ -1,3 +1,4 @@
+let qxf
 
 window.onload = function() {
     shortenURL()
@@ -50,7 +51,16 @@ function makeQR(index) {
             img.src = response.qr_image;
 
             // Append image to the body or any other container
-            document.getElementById("qrCode").src=img.src;
+            document.getElementById("qrCode").src = img.src;
+            
+            
+            document.getElementById("endpointPath").innerHTML = response.about[0].endpoint;
+            document.getElementById("orgUrl").innerHTML = response.about[0].url.substring(0, 30)+"...";
+            document.getElementById("endpointExpiry").innerHTML = response.about[0].expiry;
+            document.getElementById("endpointPass").innerHTML = response.about[0].pass;
+            document.getElementById("endpointUses").innerHTML = response.about[0].uses;
+
+
         } else {
             // Display error
             console.error('Request failed with status:', xhr.status);
@@ -89,12 +99,6 @@ function copyEndpoint(index) {
 //Flips element from hidden to visible
 function setExpiry() {
     document.getElementById("expiry").hidden = !document.getElementById("expiry").hidden
-
-    //Flips the style from none to flex
-    document.getElementById("expiry").style.display = 'flex'
-    if (document.getElementById("expiry").hidden) {
-        document.getElementById("expiry").style.display = 'none'
-    }
 }
 
 
@@ -140,18 +144,13 @@ document.addEventListener("DOMContentLoaded", function() {
 function downloadQr() {
     var image = document.getElementById("qrCode");
     
-    // Create a temporary anchor element
+    //Create a element
     var downloadLink = document.createElement("a");
     downloadLink.href = image.src;
     downloadLink.download = "qrcode.jpg";
 
-    // Append the anchor element to the body
     document.body.appendChild(downloadLink);
-
-    // Trigger a click event on the anchor element
     downloadLink.click();
-
-    // Remove the anchor element from the body
     document.body.removeChild(downloadLink);
 }
 

@@ -48,12 +48,20 @@
         <div class="endpointListContainer">
             <p>URL List</p>
             <ul id="endpointList">
-                {% for key, path, url in entries %}
+                <!-- <li class="urlContainer">
+                    <p>Endpoints:</p>
+                    <p>Url:</p>
+                    <p>Uses:</p>
+                    <p>expires</p>
+                </li> -->
+                {% for key, path, url, uses, expiry in entries %}
                     <li>
                         <div class="urlListContainer">
                             <a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a>
                             <div class="urlContainer">
                                 <a class="theURL"  id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a>
+                                <p>{{ expiry }}</p>
+                                <p>{{ uses }}</p>
                                 <div class="urlButtonContainer">
                                     <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
                                     <img class="iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
@@ -96,13 +104,17 @@
                 </div>
                 <div id="qrInfo">
                     <img id="qrCode">
-                    <div id="charlesLeclerc">
-                        <a href=""></a>
-                        <p>NOOOOOO! (2022 French Grand Prix)</p>
-                        <p>I AM STUPID, I AM STUPID</p>
-                        <p>OMG. I never looked so good</p>
-                        <p>Im coming on your camera mate</p>
-                        <p>Nothing, just an inchident</p>
+                    <div>
+                        <label>Endpoint:</label>
+                        <p id="endpointPath"></p>
+                        <label>Url:</label>
+                        <p id="orgUrl"></p>
+                        <label>Expiry:</label>
+                        <p id="endpointExpiry"></p>
+                        <label>Password:</label>
+                        <p id="endpointPass"></p>
+                        <label>Uses left:</label>
+                        <p id="endpointUses"></p>
 
                         <button onclick="downloadQr()"> Download QR Code</button>
 

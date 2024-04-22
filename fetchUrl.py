@@ -105,3 +105,14 @@ def find_key_by_endpoint(endpoint):
         if value.get('endpoint') == endpoint:
             return key
     return None
+
+def load_data_from_endpoint(endpoint):
+    with open('urls.json', 'r') as file:
+        data = json.load(file)
+    
+    matching_entries = []
+    for key, value in data.items():
+        if value['endpoint'] == endpoint:
+            matching_entries.append(value)
+    
+    return matching_entries
