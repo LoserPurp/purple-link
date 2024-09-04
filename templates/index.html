@@ -6,43 +6,44 @@
     </head>
     <body>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-
-
-    <div class="trapezoidContainer">
-        <div class="trapezoid"></div>
-        <div class="trapezoid2"></div>
-    </div>
         
     <div class="project">
         
         <div class="addUrlContainer">
-            <form method="POST" action="/" class="addUrlFormContainer">
-                <h1>Add URL</h1>
-                <div class="enterUrlContainer">
-                <label for="url">Enter URL:</label>
-                <input type="text" id="url" name="url">
+            <div class="charlesLeclerc">
+                <form method="POST" action="/" class="addUrlFormContainer">
+                    <h1>Add URL</h1>
+                    <div class="enterUrlContainer">
 
-                <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
-                </div>
-                <div id="expiry" style="display: none;" hidden="true">
-                    <div class="hoursActiveContainer">
-                        <label for="expire">Hours Active:</label>
-                        <input type="number" id="expire" name="expire">
+                    <div class="inputContainer inputContainerSpacing">
+                        <input type="text" id="url" name="url" required onfocus="updatePlaceHolder('url')">
+                        <div class="labelContainer">
+                            <p id="urlplaceholder" class="placeholder">Enter URL</p>
+                        </div>
+                    </div>   
+
+                    <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
                     </div>
-                    <div class="maxUsesContainer">
-                        <label for="expire">Max Uses:</label>
-                        <input type="number" id="maxUses" name="maxUses">
+                    <div id="expiry" style="display: none;" hidden="true">
+                        <div class="hoursActiveContainer">
+                            <label for="expire">Hours Active:</label>
+                            <input type="number" id="expire" name="expire">
+                        </div>
+                        <div class="maxUsesContainer">
+                            <label for="expire">Max Uses:</label>
+                            <input type="number" id="maxUses" name="maxUses">
+                        </div>
+                        <div class="passwordContainer">
+                            <label for="expire">Endpoint Password:</label>
+                            <input type="text" id="pass" name="pass">
+                        </div>
                     </div>
-                    <div class="passwordContainer">
-                        <label for="expire">Endpoint Password:</label>
-                        <input type="text" id="pass" name="pass">
+                    <div class="buttonUrlContainer">
+                        <button type="submit">Submit</button>
                     </div>
-                </div>
-                <div class="buttonUrlContainer">
-                    <button type="submit">Submit</button>
-                </div>
-                
-            </form>
+                    
+                </form>
+            </div>
         </div>
 
         <div class="endpointListContainer">
@@ -81,23 +82,61 @@
                 <div id="changeEndpointContainer" hidden="true">
                     <h2>Change Endpoint</h2>
                     <form method="POST" action="/change_endpoint">
-                        <input type="text" id="index" name="index" hidden="true">
 
-                        <label for="new_endpoint">Change Endpoint:</label>
-                        <input type="text" id="new_endpoint" name="endpoint">
 
-                        <label for="new_url">Change URL:</label>
-                        <input type="text" id="new_url" name="url">
+
+                        <div class="inputContainer inputContainerSpacing" style="display: none;">
+                            <input type="text" id="index" name="index" grequired onfocus="updatePlaceHolder('index')">
+                            <div class="labelContainer">
+                                <p id="indexplaceholder" class="placeholder">Endpoint Number</p>
+                            </div>
+                        </div> 
+
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="text" id="new_endpoint" name="new_endpoint" required onfocus="updatePlaceHolder('new_endpoint')">
+                            <div class="labelContainer">
+                                <p id="new_endpointplaceholder" class="placeholder">Change Endpoint</p>
+                            </div>
+                        </div> 
+
                         
-                        <label for="">Change Expiry:</label>
-                        <input type="text" id="new_expiry" name="expiry">
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="text" id="new_url" name="url" required onfocus="updatePlaceHolder('new_url')">
+                            <div class="labelContainer">
+                                <p id="new_urlplaceholder" class="placeholder">Change URL</p>
+                            </div>
+                        </div> 
 
-                        <label for="">Change Password:</label>
-                        <input type="text" id="new_password" name="password">
-                        <input type="text" id="old_password" name="passwordOld">
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="text" id="new_expiry" name="expiry" required onfocus="updatePlaceHolder('new_expiry')">
+                            <div class="labelContainer">
+                                <p id="new_expiryplaceholder" class="placeholder">Change Expiry</p>
+                            </div>
+                        </div> 
 
-                        <label for="">Uses Left:</label>
-                        <input type="text" id="new_uses" name="uses">
+
+                        <label for="">Change Password</label>
+                        <div class="passwordContainerSidebySide">
+                            <div class="inputContainer inputContainerSpacing">
+                                <input type="text" id="old_password" name="passwordOld" required onfocus="updatePlaceHolder('old_password')">
+                                <div class="labelContainer">
+                                    <p id="old_passwordplaceholder" class="placeholder">Old Password</p>
+                                </div>
+                            </div> 
+                            <div class="inputContainer inputContainerSpacing">
+                                <input type="text" id="new_password" name="password" required onfocus="updatePlaceHolder('new_password')">
+                                <div class="labelContainer">
+                                    <p id="new_passwordplaceholder" class="placeholder">New Password</p>
+                                </div>
+                            </div> 
+                        </div>
+
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="text" id="new_uses" name="uses" required onfocus="updatePlaceHolder('new_uses')">
+                            <div class="labelContainer">
+                                <p id="new_usesplaceholder" class="placeholder">Uses Left</p>
+                            </div>
+                        </div> 
 
                         <button type="submit">Submit</button>
                     </form>

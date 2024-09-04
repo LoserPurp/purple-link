@@ -180,3 +180,43 @@ window.onload = function() {
 };
 
 
+function updatePlaceHolder(input) {
+
+    var usernameInput = document.getElementById(input);
+    var placeholderParagraph = document.getElementById(input+'placeholder');
+    var hideshow = document.querySelector("#hideShow"+input)
+  
+  try {
+    hideshow.classList.add('hideShowFucused');
+    placeholderParagraph.classList.add('placeholderWithText');
+  
+    document.getElementById(input).addEventListener('blur', function() {
+        placeholderParagraph.classList.remove('placeholderWithText');
+        hideshow.classList.remove('hideShowFucused');
+        if (usernameInput.value !== "") {
+          placeholderParagraph.classList.add('placeholderWithText');
+          hideshow.classList.add('hideShowFucused');
+        } else {
+          placeholderParagraph.classList.remove('placeholderWithText');
+          hideshow.classList.remove('hideShowFucused');
+        }
+   
+      });
+  
+    } catch (error) {
+    placeholderParagraph.classList.add('placeholderWithText');
+  
+    document.getElementById(input).addEventListener('blur', function() {
+        placeholderParagraph.classList.remove('placeholderWithText');
+        if (usernameInput.value !== "") {
+          placeholderParagraph.classList.add('placeholderWithText');
+        } else {
+          placeholderParagraph.classList.remove('placeholderWithText');
+        }
+   
+      });
+  
+    }
+  }
+
+  updatePlaceHolder("index");
