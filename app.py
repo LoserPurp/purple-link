@@ -281,5 +281,5 @@ def redirect_page():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port="7237")
+    app.run(debug=True, host="0.0.0.0", port="7237")
     # serve(app, host="0.0.0.0", port="7237")
