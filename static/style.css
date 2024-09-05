@@ -42,11 +42,13 @@
 head, body {
     background: var(--primary-color);
     color: #fff;
+    margin: 0;
+    padding: 0;
 }
 
 .project {
-    height: calc(100dvh - 16px);
-    width: calc(100dvw - 16px);
+    height: 100dvh;
+    width: 100dvw;
     align-content: center;
 }
 
@@ -73,7 +75,7 @@ ul#endpointList {
     width: calc(100dvw - 16px);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    margin: 0 25px 0 25px;
 }
 
 img:not(#qrCode)  {
@@ -85,7 +87,7 @@ a {
 }
 
 li:nth-child(2n) {
-    background: #3a3939;
+    background: #272727;
 }
 
 .infoBox {
@@ -96,6 +98,29 @@ li:nth-child(2n) {
     position: fixed;
     top: 0;
     background: #000000b0;
+}
+
+/* CSS */
+button {
+  background: #5E5DF0;
+  border-radius: 999px;
+  box-shadow: #5E5DF0 0 10px 20px -10px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 0;
 }
 
 .boxBox {
@@ -127,9 +152,10 @@ div#qrInfo {
 
 
 .charlesLeclerc {
-    background: var(--secondary-color);
+    background: var(--primary-color);
     padding: 25px;
-    border-radius: 5px;
+    height: 100%;
+    border-radius: 4px;
 }
 
 
@@ -139,6 +165,8 @@ div.addUrlContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: 4px;
+    box-shadow: 1px 0 3px #353434, 1px 0 2px #0e0e0e;
 }
 
 
@@ -256,7 +284,7 @@ input {
     align-self: center;
 }
 
-.buttonUrlContainer > button:hover {
+/* .buttonUrlContainer > button:hover {
     background: #a8ffa52b;
 }
 
@@ -269,7 +297,7 @@ input {
     padding: 6px;
     margin: 0;
     width: 420px;
-}
+} */
 
 
 .maxUsesContainer, .hoursActiveContainer {
@@ -279,6 +307,8 @@ input {
 
 .urlContainer > a {
     width: 330px;
+    text-shadow: black 1px 1px;
+    color: #5e5df0;
 }
 
 .urlEndpoint,  .urlContainer > a {
@@ -306,7 +336,7 @@ a {
     font-size: 18px;
 }
 
-a, p, h1, h2, h3, label, button, input{
+a, p, h1, h2, h3, label, button, input, div{
     font-family: "Roboto", sans-serif;
     font-weight: 500;
     font-style: normal;
@@ -330,3 +360,37 @@ li {
     display: flex;
     justify-content: center;
 }
+
+#endpointList > li:nth-child(1) > div > div.urlContainer > div {
+    margin-right: 42px;
+}
+
+
+@media (prefers-color-scheme: light) {
+    :root{
+        --primary-color: #fff;
+    }
+    .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
+        color: #000 !important;
+    }
+    div.addUrlContainer {
+        box-shadow: 2px 0 4px #d9d9d9, 1px 0 2px #ffffff;
+    }
+    img:not(#qrCode) {
+        filter: invert(0);
+    }
+    ul#endpointList{
+        background: #ffffff;
+        box-shadow: #d1d1d1ad 0px 0px 4px;
+    }
+    li:nth-child(2n) {
+        background: #f9f9f9;
+    }
+    input {
+        color: black;
+        background: #efefef;
+    }
+    .boxBox {
+        background: #ffffff;
+    }
+  }

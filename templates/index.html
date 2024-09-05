@@ -6,9 +6,8 @@
     </head>
     <body>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-        
     <div class="project">
-        
+        <div style="display: flex;flex-direction: row; height: 100%;">
         <div class="addUrlContainer">
             <div class="charlesLeclerc">
                 <form method="POST" action="/" class="addUrlFormContainer">
@@ -16,9 +15,9 @@
                     <div class="enterUrlContainer">
 
                     <div class="inputContainer inputContainerSpacing">
-                        <input type="text" id="url" name="url" required onfocus="updatePlaceHolder('url')">
+                        <input type="text" id="url" name="url" required onfocus="updatePlaceHolder('url')" style="width: 250px;">
                         <div class="labelContainer">
-                            <p id="urlplaceholder" class="placeholder">Enter URL</p>
+                            <p id="urlplaceholder" class="placeholder" style="left: 139px;">Enter URL</p>
                         </div>
                     </div>   
 
@@ -55,6 +54,18 @@
                     <p>Uses:</p>
                     <p>expires</p>
                 </li> -->
+                    <li>
+                        <div class="urlListContainer">
+                            <div class="urlEndpoint" style="min-width: 72px; max-width: 72px; text-shadow: black 1px 1px;">PATH</div>
+                            <div class="urlContainer">
+                                <a class="theURL" style="color: white;">URL</a>
+                                <div class="" style="margin-left: 14px; text-shadow: black 1px 1px;">USES</div>
+                                <div class="" style="margin-right: 28px; text-shadow: black 1px 1px;">EXPIRY</div>
+                                <div class="" style="text-shadow: black 1px 1px;">ACTIONS</div>
+                            </div>
+                        </div>
+
+                    </li>
                 {% for key, path, url, uses, expiry in entries %}
                     <li>
                         <div class="urlListContainer">
@@ -161,7 +172,7 @@
                 </div>
             </div>
         </div>
-    
+    </div>
     </div>
     </body>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
