@@ -26,7 +26,10 @@
     --strong-password-indicator: #24ce53;
 }
 
-
+p.textInQRCode {
+    margin: 0;
+    padding: 0;
+}
 
 .iconCopy,
 .iconEdit,
@@ -76,6 +79,7 @@ ul#endpointList {
     display: flex;
     flex-direction: column;
     margin: 0 25px 0 25px;
+    align-items: center;
 }
 
 img:not(#qrCode)  {
@@ -101,7 +105,7 @@ li:nth-child(2n) {
 }
 
 /* CSS */
-button {
+button, .button {
   background: #5E5DF0;
   border-radius: 999px;
   box-shadow: #5E5DF0 0 10px 20px -10px;
@@ -123,14 +127,19 @@ button {
   border: 0;
 }
 
+.buttonSettings{
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}
+
 .boxBox {
     max-width: 500px;
     width: 100%;
     border-radius: 7px;
     height: min-content;
     background: var(--secondary-color);
-    display: flex;
-    padding: 10px;
+    padding: 25px;
     justify-content: center;
     /* border: 4px solid #303030; */
     /* backdrop-filter: blur(792px); */
@@ -145,8 +154,8 @@ div#qrInfo {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    flex-direction: row;
     width: 100%;
+    flex-direction: column;
 }
 
 
@@ -204,7 +213,7 @@ div#expiry {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 100%;
+    /* width: 100%; */
 }
 
 .inputContainerSpacing {
@@ -236,6 +245,7 @@ input {
 .passwordContainerSidebySide{
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
 .passwordContainerSidebySide > div > input {
@@ -305,7 +315,7 @@ input {
     flex-direction: column;
 }
 
-.urlContainer > a {
+.theURL {
     width: 330px;
     text-shadow: black 1px 1px;
     color: #5e5df0;
@@ -319,17 +329,99 @@ input {
 
 
 .urlListContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    width: calc(100% - 90px);
+    padding: 20px;
+    margin-top: 20px;
+    row-gap: 0px;
+    column-gap: 0px;
+    border-radius: 5px;
+    box-shadow: #9595952e 0px 0px 15px;
+    /* box-shadow: #0000002e 0px 0px 29px; */
+    background: #2c2c2c;
+}
+
+.grid-header {
+    display: contents;
+    font-weight: bold;
+    background-color: #f0f0f0;
+    padding: 10px 0;
+}
+
+.grid-header-item {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+    font-weight: bolder;
+    background-color: #2c2c2c;
+}
+
+.urlEndpoint, .theURL {
+    display: inline-block;
+    max-width: 200px; /* Adjust the width as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+#orgUrl {
+    display: inline-block;
+    max-width: 250px; /* Adjust the width as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+
+.grid-content {
+    display: contents;
+}
+
+.grid-item {
+    align-content: center;
+    height: 50px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+.urlButtonContainer {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 40px;
-    width: calc(100% - 30px);
-} 
+    justify-content: center;
+    gap: 10px;
+}
+
+.iconCopy, .iconQR, .iconEdit, .iconRemove {
+    width: 20px;
+    cursor: pointer;
+}
+
 
 .urlButtonContainer > img {
     padding: 0 3px;
-    height: 28px;
-    width: 28px;
+    height: 21.7px;
+    width: 21.7px;
+}
+
+/* Alternating row colors */
+.grid-content:nth-child(even) .grid-item {
+    background: #272727;
+}
+
+.grid-content:nth-child(odd) .grid-item {
+    background: #2c2c2c; /* Default background for odd rows */
+}
+
+
+/* Customize first and last div in every odd row */
+.grid-content:nth-child(even) .grid-item:first-child {
+    background: linear-gradient(90deg, rgba(44,44,44,1) 0%, rgba(39,39,39,1) 20%, rgba(39,39,39,1) 100%);
+}
+
+.grid-content:nth-child(even) .grid-item:last-child {
+    background: linear-gradient(90deg, rgba(39,39,39,1) 0%, rgba(39,39,39,1) 80%, rgba(44,44,44,1) 100%);
 }
 
 a {
@@ -343,11 +435,10 @@ a, p, h1, h2, h3, label, button, input, div{
 }
 
 .urlContainer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
     width: 100%;
-    align-items: center;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
 }
 
 .urlButtonContainer {
@@ -366,11 +457,20 @@ li {
 }
 
 
+p.version {
+    bottom: 3px;
+    position: fixed;
+    right: 3px;
+    color: white;
+    margin: 0;
+    font-size: 10px;
+}
+
 @media (prefers-color-scheme: light) {
     :root{
         --primary-color: #fff;
     }
-    .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
+    a, p.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
         color: #000 !important;
     }
     div.addUrlContainer {
@@ -393,4 +493,31 @@ li {
     .boxBox {
         background: #ffffff;
     }
-  }
+    .theURL {
+        width: 330px;
+        text-shadow: black 1px 1px;
+        color: #5e5df0 !important;
+    }  
+    .grid-content:nth-child(even) .grid-item {
+        background: #f9f9f9;
+    }
+    
+    .grid-content:nth-child(odd) .grid-item {
+        background-color: #ffffff; /* Default background for odd rows */
+    }
+    .grid-header-item {
+        background-color: transparent;
+    }
+    .urlListContainer {
+        box-shadow: #0000002e 0px 0px 15px;
+        background: transparent;
+    }
+    /* Customize first and last div in every odd row */
+    .grid-content:nth-child(even) .grid-item:first-child {
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(249,249,249,1) 20%, rgba(249,249,249,1) 100%);;
+    }
+
+    .grid-content:nth-child(even) .grid-item:last-child {
+    background: linear-gradient(90deg, rgba(249,249,249,1) 0%, rgba(249,249,249,1) 80%, rgba(255,255,255,1) 100%);;
+    }
+}
