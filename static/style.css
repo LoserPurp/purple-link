@@ -457,7 +457,7 @@ li {
 }
 
 
-p.version {
+a.version {
     bottom: 3px;
     position: fixed;
     right: 3px;
@@ -474,7 +474,7 @@ p.version {
     :root{
         --primary-color: #fff;
     }
-    a, .addUrlHeader, p.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
+    a, .addUrlHeader, a.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
         color: #000 !important;
     }
     div.addUrlContainer {
