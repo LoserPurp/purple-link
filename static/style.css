@@ -466,11 +466,15 @@ p.version {
     font-size: 10px;
 }
 
+.addUrlHeader{
+    color: white;
+}
+
 @media (prefers-color-scheme: light) {
     :root{
         --primary-color: #fff;
     }
-    a, p.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
+    a, .addUrlHeader, p.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
         color: #000 !important;
     }
     div.addUrlContainer {
