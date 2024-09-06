@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, redirect, request, url_for, render_template
+from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
 from waitress import serve
+from functools import wraps
 from datetime import datetime, timedelta
 import fetchUrl
 import json
@@ -16,7 +17,7 @@ from PIL import Image
 
 
 app = Flask(__name__)
-
+app.secret_key = 'key69'
 
 #makes random string
 def generate_random_string():
@@ -25,6 +26,14 @@ def generate_random_string():
         if not fetchUrl.find_endpoint(rndm):
             return rndm
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:  # Check if user is in session (logged in)
+            flash('Please log in to access this page.', 'warning')
+            return redirect(url_for('home'))  # Redirect to login if not logged in
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 #Checks if the time in an entry is older than when the check runs
@@ -69,7 +78,8 @@ def not_found():
 
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/dashboard", methods=["GET", "POST"])
+@login_required
 def index():
     check_time()
 
@@ -139,6 +149,7 @@ def index():
 
 
 @app.route("/qr", methods=["POST"])
+@login_required
 def make_qr():
     # Get the data from the request
     index = request.form.get('index')
@@ -194,6 +205,7 @@ def make_qr():
 
 #change endpoint
 @app.route('/change_endpoint', methods=['GET', 'POST'])
+@login_required
 def change_endpoint():
     if request.method == 'POST':
         index = request.form['index']
@@ -213,6 +225,7 @@ def change_endpoint():
 
 #remove endpoint
 @app.route('/remove_endpoint', methods=['GET', 'POST'])
+@login_required
 def remove_endpoint():
     if request.method == 'POST':
         index = request.form['index']
@@ -224,7 +237,7 @@ def remove_endpoint():
     return render_template('remove_endpoint.html')
 
 
-@app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
+# @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
 def redirect_url(path):
 
@@ -278,6 +291,32 @@ def redirect_page():
     endpoint = request.args.get('endpoint')
     url = fetchUrl.find_endpoint(endpoint)
     return render_template('redirect.html', url=url, wait=5000)
+
+
+users = {
+    'admin': {"group":"administrator", "password": "adm"},
+    'robin': {"group":"administrator", "password": "adm"},
+    'olai': {"group":"administrator", "password": "adm"},
+}
+
+@app.route('/')
+def home():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    password = request.form['password']
+
+    # Check if user exists and password is correct
+    if username in users and users[username]["password"] == password:
+        session['username'] = username
+        session['group'] = users[username]["group"]
+        flash(f'Welcome, {username}!', 'success')
+        return redirect(url_for('index'))
+    else:
+        flash('Invalid username or password. Please try again.', 'danger')
+        return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
