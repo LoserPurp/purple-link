@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        {% include 'head.html' %}
         <title>Purple Link</title>
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-        <script src="https://kit.fontawesome.com/47dbf3c43e.js" crossorigin="anonymous"></script>
     </head>
     <body>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <div class="project">
         <div style="display: flex;flex-direction: row; height: 100%;">
         <div class="addUrlContainer">
             <div class="charlesLeclerc">
                 <form method="POST" action="/" class="addUrlFormContainer">
-                    <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                    <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;;padding: 0 25px;">
                         <h1 class="addUrlHeader">Add URL</h1>
                         <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
                     </div>
@@ -52,7 +49,7 @@
                         <button type="submit">Submit</button>
                     </div>   
                 </form>
-                <!-- <a href="/settings" class="buttonSettings"><i class="fa-solid fa-gear" style="font-size: 25px;color: #5e5df0;"></i></a> -->
+                <a href="/settings" class="buttonSettings"><i class="fa-solid fa-gear" style="font-size: 25px;color: #5e5df0;"></i></a>
             </div>
         </div>
 
@@ -177,7 +174,4 @@
     </div>
     </div>
     </body>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <a href="https://github.com/LoserPurp/purple-link" class="version">v1.0.2</a>
 </html>
