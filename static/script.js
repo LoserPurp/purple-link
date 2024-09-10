@@ -239,4 +239,19 @@ function updatePlaceHolder(input) {
     }
   }
 
+
+function showSomething(getName) {
+    try {
+        const container = document.getElementById('endpointListContainer');
+        container.innerHTML = '';
+        const newDiv = document.createElement('div');
+        const newHeading = document.createElement('a');
+        newHeading.textContent = getName;
+        newDiv.appendChild(newHeading);
+        container.appendChild(newDiv);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
   updatePlaceHolder("index");

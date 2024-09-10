@@ -116,6 +116,7 @@ button, .button {
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
+  text-decoration: none;
   opacity: 1;
   outline: 0 solid transparent;
   padding: 8px 18px;
@@ -125,6 +126,17 @@ button, .button {
   width: fit-content;
   word-break: break-word;
   border: 0;
+}
+
+.button.long {
+    width: 100%;
+    display: block;
+    text-align: center;
+}
+
+/* Apply style to all .button.long elements except the first one */
+.button.long:not(:first-of-type) {
+    margin-top: 10px;
 }
 
 .buttonSettings{
@@ -162,13 +174,11 @@ div#qrInfo {
 
 .charlesLeclerc {
     background: var(--primary-color);
-    padding: 25px;
+    padding: 25px 0 25px 0;
     height: 100%;
+    width: 312px;
     border-radius: 4px;
 }
-
-
-
 
 div.addUrlContainer {
     display: flex;
@@ -470,11 +480,16 @@ a.version {
     color: white;
 }
 
+.forgot-password {
+    text-align: center;
+    padding-top: 15px;
+}
+
 @media (prefers-color-scheme: light) {
     :root{
         --primary-color: #fff;
     }
-    a, .addUrlHeader, a.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
+    a:not(.button, .theURL), .addUrlHeader, a.version, .urlEndpoint, .boxBox , .urlListContainer > a, body > div > div > div.endpointListContainer > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
         color: #000 !important;
     }
     div.addUrlContainer {

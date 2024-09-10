@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+        <title>Purple Link | Settings</title>
+    </head>
+    <body>
+    <div class="project">
+        <div style="display: flex;flex-direction: row; height: 100%;">
+            <div class="addUrlContainer">
+                <div class="charlesLeclerc">
+                    <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;;padding: 0 25px;">
+                        <h1 class="addUrlHeader">Settings</h1>
+                    </div>
+                    <div style="padding: 0 25px;"> 
+                        <a class="button long" href="/logout">Logout</a>
+                        <a class="button long" onclick="showSomething('Lorem')">Lorem</a>
+                        <a class="button long" onclick="showSomething('ipsum')">ipsum</a>
+                    </div>
+                    <a href="/dashboard" class="buttonSettings"><i class="fa-solid fa-gear" style="font-size: 25px;color: #5e5df0;"></i></a>
+                </div>
+            </div>
+            <div id="endpointListContainer" class="endpointListContainer">
+
+            </div>
+        </div>
+    </div>
+    </body>
+    <script>
+        document.addEventListener('keydown', function(event) {
+            // Check if the pressed key is 'Escape'
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                // Redirect to Google
+                window.location.href = '/dashboard';
+            }
+        });
+    </script>
+</html>

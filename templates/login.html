@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
+    {% include 'head.html' %}
     <title>Login</title>
 </head>
 <body>
     <body>
 
         <div class="login-container">
-            <h2>Login</h2>
+       
             <form action="/login" method="POST">
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                <div style="display: flex;flex-direction: column;align-items: center;">
+                    <a style="font-size: 35px;padding: 20px 0;">Login</a>
+                    <div class="inputContainer inputContainerSpacing">
+                        <input type="text" id="username" name="username" required onfocus="updatePlaceHolder('username')" style="width: 250px;">
+                        <div class="labelContainer">
+                            <p id="usernameplaceholder" class="placeholder" style="left: 139px;">Username</p>
+                        </div>
+                    </div> 
+
+                    <div class="inputContainer inputContainerSpacing">
+                        <input type="text" id="password" name="password" required onfocus="updatePlaceHolder('password')" style="width: 250px;">
+                        <div class="labelContainer">
+                            <p id="passwordplaceholder" class="placeholder" style="left: 139px;">Password</p>
+                        </div>
+                    </div> 
+
+
+
+
+                    <button type="submit" class="login-btn">Login</button>
                 </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="login-btn">Login</button>
             </form>
             <div class="forgot-password">
                 <a href="#">Forgot your password?</a>

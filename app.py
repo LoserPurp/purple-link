@@ -330,7 +330,20 @@ def login():
         flash('Invalid username or password. Please try again.', 'danger')
         return redirect(url_for('home'))
 
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
+@app.route('/logout')
+def logout():
+    # Clear the session data
+    session.pop('username', None)
+    session.pop('group', None)
+    
+    # Redirect the user to the home or login page
+    return redirect(url_for('home'))
+
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port="7237")
+    app.run(debug=True, port="7237")
     # serve(app, host="0.0.0.0", port="7237")
