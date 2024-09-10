@@ -55,7 +55,9 @@ function makeQR(index) {
             
             
             document.getElementById("endpointPath").innerHTML = response.about[0].endpoint;
-            document.getElementById("orgUrl").innerHTML = response.about[0].url.substring(0, 30)+"...";
+            document.getElementById("endpointPath").href = response.about[0].endpoint;
+            document.getElementById("orgUrl").innerHTML = response.about[0].url;
+            document.getElementById("orgUrl").href = response.about[0].url;
             document.getElementById("endpointExpiry").innerHTML = response.about[0].expiry;
             document.getElementById("endpointPass").innerHTML = response.about[0].pass;
             document.getElementById("endpointUses").innerHTML = response.about[0].uses;
@@ -98,7 +100,12 @@ function copyEndpoint(index) {
 
 //Flips element from hidden to visible
 function setExpiry() {
-    document.getElementById("expiry").hidden = !document.getElementById("expiry").hidden
+    var expiryElement = document.getElementById("expiry");
+    if (expiryElement.style.display === "none") {
+        expiryElement.style.display = "block";
+    } else {
+        expiryElement.style.display = "none";
+    }    
 }
 
 
@@ -128,14 +135,27 @@ document.addEventListener("DOMContentLoaded", function() {
     var boxBox = document.querySelector(".boxBox");
     var endpointList = document.getElementById("endpointList");
 
-    // Function to handle clicks
-    function handleClickOutside(event) {
-        // Check if the clicked element is outside of the boxBox
-        if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
-            // If it's outside, hide the infoBox
-            infoBox.style.display = "none";
+        // Function to handle clicks
+        // Listen for both click outside and 'Esc' key events
+        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('keydown', handleKeyPress);
+
+        function handleClickOutside(event) {
+            // Check if the clicked element is outside of the boxBox
+            if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
+                // If it's outside, hide the infoBox
+                infoBox.style.display = "none";
+            }
         }
-    }
+
+        function handleKeyPress(event) {
+            // Check if the 'Esc' key was pressed
+            if (event.key === 'Escape') {
+                // Hide the infoBox when 'Esc' is pressed
+                infoBox.style.display = "none";
+            }
+        }
+
 
     // Add click event listener to the document
     document.addEventListener("click", handleClickOutside);

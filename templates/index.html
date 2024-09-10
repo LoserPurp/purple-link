@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <title>Purple Link</title>
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <script src="https://kit.fontawesome.com/47dbf3c43e.js" crossorigin="anonymous"></script>
     </head>
     <body>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
@@ -12,7 +13,10 @@
         <div class="addUrlContainer">
             <div class="charlesLeclerc">
                 <form method="POST" action="/" class="addUrlFormContainer">
-                    <h1>Add URL</h1>
+                    <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                        <h1 class="addUrlHeader">Add URL</h1>
+                        <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
+                    </div>
                     <div class="enterUrlContainer">
 
                     <div class="inputContainer inputContainerSpacing">
@@ -22,59 +26,55 @@
                         </div>
                     </div>   
 
-                    <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
+        
                     </div>
                     <div id="expiry" style="display: none;" hidden="true">
-                        <div class="hoursActiveContainer">
-                            <label for="expire">Hours Active:</label>
-                            <input type="number" id="expire" name="expire">
-                        </div>
-                        <div class="maxUsesContainer">
-                            <label for="expire">Max Uses:</label>
-                            <input type="number" id="maxUses" name="maxUses">
-                        </div>
-                        <div class="passwordContainer">
-                            <label for="expire">Endpoint Password:</label>
-                            <input type="text" id="pass" name="pass">
-                        </div>
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="number" id="expire" name="expire" required onfocus="updatePlaceHolder('expire')" style="width: 250px;">
+                            <div class="labelContainer">
+                                <p id="expireplaceholder" class="placeholder" style="left: 139px;">Hours Active</p>
+                            </div>
+                        </div> 
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="number" id="maxUses" name="maxUses" required onfocus="updatePlaceHolder('maxUses')" style="width: 250px;">
+                            <div class="labelContainer">
+                                <p id="maxUsesplaceholder" class="placeholder" style="left: 139px;">Max Uses</p>
+                            </div>
+                        </div> 
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="text" id="pass" name="pass" required onfocus="updatePlaceHolder('pass')" style="width: 250px;">
+                            <div class="labelContainer">
+                                <p id="passplaceholder" class="placeholder" style="left: 139px;">Endpoint Password</p>
+                            </div>
+                        </div> 
                     </div>
                     <div class="buttonUrlContainer">
                         <button type="submit">Submit</button>
-                    </div>
-                    
+                    </div>   
                 </form>
+                <!-- <a href="/settings" class="buttonSettings"><i class="fa-solid fa-gear" style="font-size: 25px;color: #5e5df0;"></i></a> -->
             </div>
         </div>
 
         <div class="endpointListContainer">
             <p>URL List</p>
-            <ul id="endpointList">
-                <!-- <li class="urlContainer">
-                    <p>Endpoints:</p>
-                    <p>Url:</p>
-                    <p>Uses:</p>
-                    <p>expires</p>
-                </li> -->
-                    <li>
-                        <div class="urlListContainer">
-                            <div class="urlEndpoint" style="min-width: 72px; max-width: 72px; text-shadow: black 1px 1px;">PATH</div>
-                            <div class="urlContainer">
-                                <a class="theURL" style="color: white;">URL</a>
-                                <div class="" style="margin-left: 14px; text-shadow: black 1px 1px;">USES</div>
-                                <div class="" style="margin-right: 28px; text-shadow: black 1px 1px;">EXPIRY</div>
-                                <div class="" style="text-shadow: black 1px 1px;">ACTIONS</div>
-                            </div>
-                        </div>
-
-                    </li>
-                {% for key, path, url, uses, expiry in entries %}
-                    <li>
-                        <div class="urlListContainer">
-                            <a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a>
-                            <div class="urlContainer">
-                                <a class="theURL"  id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a>
-                                <p>{{ expiry }}</p>
-                                <p>{{ uses }}</p>
+            <div id="endpointList" style="height: 100dvh;display: flex;overflow-y: auto;flex-direction: column;align-items: center;">
+                <div class="urlListContainer">
+                    <div class="grid-header">
+                        <div class="grid-header-item">Path</div>
+                        <div class="grid-header-item">URL</div>
+                        <div class="grid-header-item">Uses</div>
+                        <div class="grid-header-item">Expiry</div>
+                        <div class="grid-header-item">Action</div>
+                    </div>
+                
+                    {% for key, path, url, uses, expiry in entries %}
+                        <div class="grid-content">
+                            <div class="grid-item"><a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a></div>
+                            <div class="grid-item"><a class="theURL" id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a></div>
+                            <div class="grid-item"><a>{{ uses }}</a></div>
+                            <div class="grid-item"><a>{{ expiry }}</a></div>
+                            <div class="grid-item">
                                 <div class="urlButtonContainer">
                                     <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
                                     <img class="iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
@@ -83,9 +83,10 @@
                                 </div>
                             </div>
                         </div>
-                    </li>
-                {% endfor %}
-            </ul>
+                    {% endfor %}
+                </div>
+                
+            </div>
         </div>
 
         <div class="infoBox" id="infoBox" style="display: none;">
@@ -127,7 +128,7 @@
                         </div> 
 
 
-                        <label for="">Change Password</label>
+                        <!-- <label for="">Change Password</label> -->
                         <div class="passwordContainerSidebySide">
                             <div class="inputContainer inputContainerSpacing">
                                 <input type="text" id="old_password" name="passwordOld" required onfocus="updatePlaceHolder('old_password')">
@@ -154,22 +155,22 @@
                     </form>
                 </div>
                 <div id="qrInfo">
-                    <img id="qrCode">
-                    <div>
+                    <div style="display: flex;flex-direction: row;">
+                    <img id="qrCode" style="height: 170px;">
+                    <div style="display: grid;width: fit-content;grid-template-columns: 80px 1fr;">
                         <label>Endpoint:</label>
-                        <p id="endpointPath"></p>
+                        <a class="textInQRCode" id="endpointPath"></a>
                         <label>Url:</label>
-                        <p id="orgUrl"></p>
+                        <a class="textInQRCode" id="orgUrl"></a>
                         <label>Expiry:</label>
-                        <p id="endpointExpiry"></p>
+                        <p class="textInQRCode" id="endpointExpiry"></p>
                         <label>Password:</label>
-                        <p id="endpointPass"></p>
+                        <p class="textInQRCode" id="endpointPass"></p>
                         <label>Uses left:</label>
-                        <p id="endpointUses"></p>
-
-                        <button onclick="downloadQr()"> Download QR Code</button>
-
-                    </div>
+                        <p class="textInQRCode" id="endpointUses"></p>
+                    </div>   
+                    </div>       
+                    <button onclick="downloadQr()"> Download QR Code</button>
                 </div>
             </div>
         </div>
@@ -178,4 +179,5 @@
     </body>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <a href="https://github.com/LoserPurp/purple-link" class="version">v1.0.2</a>
 </html>

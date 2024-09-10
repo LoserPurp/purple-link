@@ -4,6 +4,7 @@ from functools import wraps
 from datetime import datetime, timedelta
 import fetchUrl
 import json
+import os
 import random
 import string
 import threading
@@ -18,6 +19,17 @@ from PIL import Image
 
 app = Flask(__name__)
 app.secret_key = 'key69'
+
+# Check if urls.json exists
+url_check = 'urls.json'
+
+# Get the absolute path of the current script directory
+script_directory = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(script_directory, url_check)
+# Check if the file exists
+if not os.path.isfile(file_path):
+    with open(file_path, 'w') as file:
+        json.dump({}, file) 
 
 #makes random string
 def generate_random_string():
