@@ -38,6 +38,14 @@ def generate_random_string():
         if not fetchUrl.find_endpoint(rndm):
             return rndm
 
+try:
+    file_path = os.path.join(script_directory, "config.json")
+    with open("config.json", "r") as file:
+        conf = json.load(file)
+except:
+    print("config file not found")
+    exit(1)
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -113,7 +121,7 @@ def index():
 
             #get random string
             random_string = generate_random_string()
-            
+
             #load existing data
             data = fetchUrl.load_data()
 
@@ -133,10 +141,10 @@ def index():
                 
                 #add random string and URL to data
                 data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": "", "pass": password, "redirect": False, "uses": uses}
-            
+
             #save updated data
             fetchUrl.save_data(data)
-            
+
             #redirect to the index page
             return redirect('/')
         else:
@@ -226,7 +234,7 @@ def change_endpoint():
         if endpoint:
             if not endpoint.startswith('/'):
                 endpoint = '/'+ endpoint
-            
+
             if fetchUrl.change_endpoint(index, endpoint):
                 return redirect(url_for('index'))
 
@@ -281,8 +289,8 @@ def redirect_url(path):
     if request.method == 'POST':
         # Get the password entered by the user
         provided_password = request.form.get('password')
-        
-        
+
+
         if provided_password == expected_password:
             # If the password is correct, redirect
             if uses > 0:
@@ -305,12 +313,6 @@ def redirect_page():
     return render_template('redirect.html', url=url, wait=5000)
 
 
-users = {
-    'admin': {"group":"administrator", "password": "adm"},
-    'robin': {"group":"administrator", "password": "adm"},
-    'olai': {"group":"administrator", "password": "adm"},
-}
-
 @app.route('/')
 def home():
     return render_template('login.html')
@@ -320,15 +322,21 @@ def login():
     username = request.form['username']
     password = request.form['password']
 
+    try:
+        with open("users.json", "r") as file:
+            users = json.load(file)
+    except:
+        print("users file not found")
+        exit(1)
+
     # Check if user exists and password is correct
     if username in users and users[username]["password"] == password:
         session['username'] = username
         session['group'] = users[username]["group"]
-        flash(f'Welcome, {username}!', 'success')
         return redirect(url_for('index'))
     else:
-        flash('Invalid username or password. Please try again.', 'danger')
-        return redirect(url_for('home'))
+        flash('Invalid username or password. Please try again.')
+        return render_template('login.html')
 
 @app.route('/settings')
 def settings():
@@ -345,5 +353,5 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port="7237")
+    app.run(debug=True, host="0.0.0.0", port="7237")
     # serve(app, host="0.0.0.0", port="7237")
