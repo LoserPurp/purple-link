@@ -22,7 +22,7 @@ def find_endpoint_pass(endpoint_path):
                     return value['pass']
     except:
         return False
-    
+
 
 #find the max amount of uses for given endpoint
 def find_endpoint_uses(endpoint_path):
@@ -35,7 +35,7 @@ def find_endpoint_uses(endpoint_path):
                     return int(value['uses'])
     except:
         return False
-    
+
 #find the max amount of uses for given endpoint
 def redirect(endpoint_path):
     with open('urls.json', 'r') as file:
@@ -64,12 +64,23 @@ def save_data(data):
         json.dump(data, file, indent=4)
 
 
-#changes the random endpoint to a selected
-def change_endpoint(index, endpoint):
+# changes the random endpoint to a selected
+# def change_endpoint(index, endpoint):
+#     with open('urls.json', 'r') as file:
+#         data = json.load(file)
+#         if str(index) in data:
+#             data[str(index)]['endpoint'] = endpoint
+#             with open('urls.json', 'w') as file:
+#                 json.dump(data, file, indent=4)
+#             return True
+#         return False
+
+
+def change_endpoint(index, entry):
     with open('urls.json', 'r') as file:
         data = json.load(file)
         if str(index) in data:
-            data[str(index)]['endpoint'] = endpoint
+            data[str(index)] = entry
             with open('urls.json', 'w') as file:
                 json.dump(data, file, indent=4)
             return True
@@ -97,7 +108,7 @@ def remove_endpoint(index):
                 json.dump(data, file, indent=4)
             return True
         return False
-    
+
 def find_key_by_endpoint(endpoint):
     with open('urls.json', 'r') as file:
         data = json.load(file)
@@ -109,10 +120,10 @@ def find_key_by_endpoint(endpoint):
 def load_data_from_endpoint(endpoint):
     with open('urls.json', 'r') as file:
         data = json.load(file)
-    
+
     matching_entries = []
     for key, value in data.items():
         if value['endpoint'] == endpoint:
             matching_entries.append(value)
-    
+
     return matching_entries
