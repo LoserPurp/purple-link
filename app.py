@@ -92,20 +92,31 @@ def check_time():
             if current_time > given_time:
                 fetchUrl.remove_endpoint(key)
                 print(entry[0] + " Removed")
+                return redirect('/404.html')
 
 
 
-def add_time(hours):
-    current_time = datetime.now()
+# def add_time(hours):
+#     current_time = datetime.now()
 
-    # Add 24 hours to the current time
-    delta = timedelta(hours=hours)
-    updated_time = current_time + delta
+#     # Add 24 hours to the current time
+#     delta = timedelta(hours=hours)
+#     updated_time = current_time + delta
 
-    # Convert the updated time to string and remove seconds and microseconds
-    current_time = updated_time.strftime("%Y-%m-%d %H:%M")
+#     # Convert the updated time to string and remove seconds and microseconds
+#     current_time = updated_time.strftime("%Y-%m-%d %H:%M")
 
-    return current_time
+#     return current_time
+
+def convert_time_format(time_str):
+    if not time_str:
+        return ""
+    # Replace 'T' with space to match the desired format
+    corrected_time_str = time_str.replace('T', ' ')
+    # Convert to datetime object
+    dt = datetime.strptime(corrected_time_str, '%Y-%m-%d %H:%M')
+    # Convert the datetime object back to a string in the same format
+    return dt.strftime('%Y-%m-%d %H:%M')
 
 
 
@@ -130,6 +141,12 @@ def index():
             uses = int(request.form.get("maxUses"))
         else:
             uses = -1
+        
+        try:
+            if request.form['redirect']:
+                redirecting = True
+        except:
+                redirecting = False
 
         if url:
             #validates/formats url
@@ -155,13 +172,14 @@ def index():
                     i += 1
 
             if expire:
-                expire_time = add_time(int(expire))
+                # expire_time = expire
+                expire_time = convert_time_format(expire)
                 #add random string, URL and expiration date to data
-                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": expire_time, "pass": password, "redirect": False, "uses": uses}
+                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": expire_time, "pass": password, "redirect": redirecting, "uses": uses}
             else:
                 
                 #add random string and URL to data
-                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": "", "pass": password, "redirect": False, "uses": uses}
+                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": "", "pass": password, "redirect": redirecting, "uses": uses}
 
             #save updated data
             fetchUrl.save_data(data)
@@ -250,17 +268,55 @@ def make_qr():
 def change_endpoint():
     if request.method == 'POST':
         index = request.form['index']
-        endpoint = request.form['endpoint']
+
+        endpoint = request.form['new_endpoint']
+        url = request.form['url']
+        expiry = request.form['expiry']
+        uses = request.form['uses']
+
+        old_password = request.form['passwordOld']
+        new_password = request.form['password']
+
+        try:
+            if request.form['new_redirect']:
+                redirecting = True
+        except:
+                redirecting = False
+
+        check = fetchUrl.load_data()
+
+        if not new_password:
+            new_password = check[index]["pass"]
+        elif old_password and new_password:
+            old_password == check[index]["pass"]
+        
+        if expiry:
+            expiry = convert_time_format(expiry)
+
         #formats endpoint if user has not already done so
         if endpoint:
             if not endpoint.startswith('/'):
                 endpoint = '/'+ endpoint
+        try:
+            if int(uses):
+                uses = int(uses)
+        except ValueError:
+            uses = -1
 
-            if fetchUrl.change_endpoint(index, endpoint):
-                return redirect(url_for('index'))
+        data = {
+            "endpoint": endpoint,
+            "url": url,
+            "expiry": expiry,
+            "pass": new_password,
+            "redirect": redirecting,
+            "uses": uses
+        }
 
-            else:
-                return "Index not found"
+        if fetchUrl.change_endpoint(index, data):
+            return redirect(url_for('index'))
+
+        else:
+            return "Index not found"
     return redirect('/')
 
 
@@ -270,12 +326,13 @@ def change_endpoint():
 def remove_endpoint():
     if request.method == 'POST':
         index = request.form['index']
-        
+
         if fetchUrl.remove_endpoint(index):
             return redirect(url_for('index'))
         else:
             return "Index not found"
     return render_template('remove_endpoint.html')
+
 
 @app.route('/endpoint_details', methods=['GET', 'POST'])
 @login_required
@@ -285,9 +342,15 @@ def endpoint_details():
         with open("urls.json", "r") as file:
             data = json.load(file)
             data = data[index]
+            if data["redirect"]:
+                data["redirect"] = 'on'
+            else:
+                data["redirect"] = 'off'
+            print(data)
             return data
     else:
         pass
+
 
 # @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
@@ -344,11 +407,13 @@ def redirect_page():
     url = fetchUrl.find_endpoint(endpoint)
     return render_template('redirect.html', url=url, wait=5000)
 
+
 @app.route('/')
 def home():
     if 'username' in session:
         return redirect(url_for('index'))
     return render_template('login.html')
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -371,18 +436,28 @@ def login():
         flash('Invalid username or password. Please try again.')
         return render_template('login.html')
 
-@app.route('/settings')
+
+@app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    return render_template('settings.html')
+    if 'username' in session:
+        if request.method == 'POST':
+            theme = request.form['theme']
+            session['theme'] = theme
+            return redirect(url_for('settings'))
+        current_theme = session.get('theme', 'automatic')
+        return render_template('settings.html', current_theme=current_theme)
+    return redirect(url_for('login'))
+
 
 @app.route('/logout')
 def logout():
     # Clear the session data
     session.pop('username', None)
     session.pop('group', None)
-    
+
     # Redirect the user to the home or login page
     return redirect(url_for('home'))
+
 
 @app.route('/admin-panel')
 def admin_panel():
