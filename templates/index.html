@@ -5,11 +5,24 @@
         <title>Purple Link</title>
     </head>
     <body>
+        <!-- Flash messages block -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flashMessage">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
     <div class="project">
         <div style="display: flex;flex-direction: row; height: 100%;">
         <div class="addUrlContainer">
             <div class="charlesLeclerc">
-                <form method="POST" action="/" class="addUrlFormContainer">
+                <form method="POST" action="/dashboard" class="addUrlFormContainer">
                     <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;;padding: 0 25px;">
                         <h1 class="addUrlHeader">Add URL</h1>
                         <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()">
@@ -26,20 +39,28 @@
         
                     </div>
                     <div id="expiry" style="display: none;" hidden="true">
+                        
+                        
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="number" id="expire" name="expire" required onfocus="updatePlaceHolder('expire')" style="width: 250px;">
+                            <input type="text" id="path" name="path" onfocus="updatePlaceHolder('path')" style="width: 250px;">
+                            <div class="labelContainer">
+                                <p id="pathplaceholder" class="placeholder" style="left: 139px;">Custom Path</p>
+                            </div>
+                        </div>                      
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="number" id="expire" name="expire" onfocus="updatePlaceHolder('expire')" style="width: 250px;">
                             <div class="labelContainer">
                                 <p id="expireplaceholder" class="placeholder" style="left: 139px;">Hours Active</p>
                             </div>
                         </div> 
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="number" id="maxUses" name="maxUses" required onfocus="updatePlaceHolder('maxUses')" style="width: 250px;">
+                            <input type="number" id="maxUses" name="maxUses" onfocus="updatePlaceHolder('maxUses')" style="width: 250px;">
                             <div class="labelContainer">
                                 <p id="maxUsesplaceholder" class="placeholder" style="left: 139px;">Max Uses</p>
                             </div>
                         </div> 
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="pass" name="pass" required onfocus="updatePlaceHolder('pass')" style="width: 250px;">
+                            <input type="text" id="pass" name="pass" onfocus="updatePlaceHolder('pass')" style="width: 250px;">
                             <div class="labelContainer">
                                 <p id="passplaceholder" class="placeholder" style="left: 139px;">Endpoint Password</p>
                             </div>
@@ -54,8 +75,9 @@
         </div>
 
         <div class="endpointListContainer">
-            <p>URL List</p>
-            <div id="endpointList" style="height: 100dvh;display: flex;overflow-y: auto;flex-direction: column;align-items: center;">
+            <div class="topNav"><p>URL List</p></div>
+
+            <div id="endpointList">
                 <div class="urlListContainer">
                     <div class="grid-header">
                         <div class="grid-header-item">Path</div>
@@ -96,7 +118,7 @@
 
 
                         <div class="inputContainer inputContainerSpacing" style="display: none;">
-                            <input type="text" id="index" name="index" grequired onfocus="updatePlaceHolder('index')">
+                            <input type="text" id="index" name="index" required onfocus="updatePlaceHolder('index')">
                             <div class="labelContainer">
                                 <p id="indexplaceholder" class="placeholder">Endpoint Number</p>
                             </div>

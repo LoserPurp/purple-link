@@ -108,6 +108,7 @@ def index():
         url = request.form.get("url")
         expire = request.form.get("expire")
         password = request.form.get("pass")
+        endpoint = request.form.get("path")
 
         if request.form.get("maxUses"):
             uses = int(request.form.get("maxUses"))
@@ -119,8 +120,12 @@ def index():
             if not validators.url(url):
                 url = f'https://{url}'
 
-            #get random string
-            random_string = generate_random_string()
+            # Check if a custom endpoint was provided
+            if endpoint:
+                random_string = endpoint
+            else:
+                # Get a random string if no custom endpoint was provided
+                random_string = generate_random_string()
 
             #load existing data
             data = fetchUrl.load_data()
@@ -312,9 +317,10 @@ def redirect_page():
     url = fetchUrl.find_endpoint(endpoint)
     return render_template('redirect.html', url=url, wait=5000)
 
-
 @app.route('/')
 def home():
+    if 'username' in session:
+        return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
@@ -351,6 +357,34 @@ def logout():
     # Redirect the user to the home or login page
     return redirect(url_for('home'))
 
+@app.route('/admin-panel')
+def admin_panel():
+    # Check if the user is logged in and is an administrator
+    if 'username' in session and 'group' in session:
+        if session['group'] == 'administrator':
+            return render_template('admin.html')  # Render admin panel for admins
+        else:
+            flash('You do not have permission to access the admin panel.')
+            return redirect(url_for('index'))  # Redirect non-admins to the home page
+    else:
+        flash('You need to log in first.')
+        return redirect(url_for('index'))  # Redirect to the home page if not logged in
+
+
+@app.route('/settings/users')
+@login_required
+def load_users():
+    return render_template('/settings-pages/users.html')
+
+@app.route('/settings/account')
+@login_required
+def load_accounts():
+    return render_template('/settings-pages/account.html')
+
+@app.route('/settings/settings')
+@login_required
+def load_settings():
+    return render_template('/settings-pages/settings.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port="7237")

@@ -130,6 +130,8 @@ function editEndpoint(index) {
 // }
 
 document.addEventListener("DOMContentLoaded", function() {
+
+
     // Get the elements
     var infoBox = document.getElementById("infoBox");
     var boxBox = document.querySelector(".boxBox");
@@ -141,11 +143,17 @@ document.addEventListener("DOMContentLoaded", function() {
         document.addEventListener('keydown', handleKeyPress);
 
         function handleClickOutside(event) {
-            // Check if the clicked element is outside of the boxBox
-            if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
-                // If it's outside, hide the infoBox
-                infoBox.style.display = "none";
+
+            try {
+                // Check if the clicked element is outside of the boxBox
+                if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
+                    // If it's outside, hide the infoBox
+                    infoBox.style.display = "none";
+                }
+            } catch (error) {
+                
             }
+
         }
 
         function handleKeyPress(event) {
@@ -159,6 +167,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Add click event listener to the document
     document.addEventListener("click", handleClickOutside);
+
+    try {
+        const flashMessage = document.querySelector("body > div.flashMessage");
+        if (flashMessage) {
+            flashMessage.style.opacity = '1'; // Start fading out the entire flashMessage container
+        }
+        setTimeout(() => {
+            if (flashMessage) {
+                flashMessage.style.opacity = '0'; // Start fading out the entire flashMessage container
+            }
+        }, 3000); // Wait for 3 seconds before starting the fade-out
+
+    } catch (error) {
+        
+    }
+
 });
 
 function downloadQr() {
@@ -200,6 +224,8 @@ window.onload = function() {
 };
 
 
+
+
 function updatePlaceHolder(input) {
 
     var usernameInput = document.getElementById(input);
@@ -224,6 +250,9 @@ function updatePlaceHolder(input) {
       });
   
     } catch (error) {
+        try {
+            
+
     placeholderParagraph.classList.add('placeholderWithText');
   
     document.getElementById(input).addEventListener('blur', function() {
@@ -235,23 +264,44 @@ function updatePlaceHolder(input) {
         }
    
       });
-  
+    } catch (error) {}
     }
   }
 
 
-function showSomething(getName) {
+  function showSomething(getName) {
     try {
-        const container = document.getElementById('endpointListContainer');
-        container.innerHTML = '';
-        const newDiv = document.createElement('div');
-        const newHeading = document.createElement('a');
-        newHeading.textContent = getName;
-        newDiv.appendChild(newHeading);
-        container.appendChild(newDiv);
+        const container = document.getElementById('endpointList');
+        container.innerHTML = '';  // Clear the container
+        
+        if (getName) {
+        // First fetch and insert HTML
+        fetch('/settings/'+getName)
+            .then(response => response.text())
+            .then(html => {
+                // Once the fetch is complete and HTML is loaded into the DOM
+                const newDiv = document.createElement('div');
+                newDiv.innerHTML = html;
+                container.appendChild(newDiv);
+                // Test Code. This adds a new element to the fetched HTML
+                const otherContainer = document.querySelector("#settingsContent");
+                if (otherContainer) {
+                    const anotherDiv = document.createElement('div');
+                    const newHeading = document.querySelector("#SettingsLabel");
+                    newHeading.textContent = getName.charAt(0).toUpperCase() + getName.slice(1).toLowerCase();
+                    otherContainer.appendChild(anotherDiv);
+                } else {
+                    console.error('Element #settingsContent not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading the head:', error);
+            });
+        }
     } catch (error) {
         console.error(error);
     }
 }
 
-  updatePlaceHolder("index");
+
+updatePlaceHolder("index");

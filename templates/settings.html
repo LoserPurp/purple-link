@@ -13,15 +13,18 @@
                         <h1 class="addUrlHeader">Settings</h1>
                     </div>
                     <div style="padding: 0 25px;"> 
+                        <a class="button long" onclick="showSomething('account')">Account</a>
+                        <a class="button long" onclick="showSomething('users')">Users</a>
+                        <a class="button long" onclick="showSomething('settings')">Settings</a>
                         <a class="button long" href="/logout">Logout</a>
-                        <a class="button long" onclick="showSomething('Lorem')">Lorem</a>
-                        <a class="button long" onclick="showSomething('ipsum')">ipsum</a>
                     </div>
                     <a href="/dashboard" class="buttonSettings"><i class="fa-solid fa-gear" style="font-size: 25px;color: #5e5df0;"></i></a>
                 </div>
             </div>
+            
             <div id="endpointListContainer" class="endpointListContainer">
-
+                <div class="topNav"><p id="SettingsLabel">Lorem Ipsum</p></div>
+                <div id="endpointList"></div>
             </div>
         </div>
     </div>
