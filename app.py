@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from waitress import serve
 from functools import wraps
 from datetime import datetime, timedelta
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
+from cryptography.fernet import Fernet
 import fetchUrl
 import json
 import os
@@ -13,7 +16,6 @@ import qrcode
 import io
 import base64
 import validators
-
 from PIL import Image
 
 
@@ -45,6 +47,20 @@ try:
 except:
     print("config file not found")
     exit(1)
+
+
+def hash(passphrase, salt="salt123!".encode(), iterations=100000):
+    passphrase_bytes = passphrase.encode('utf-8')
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=iterations
+    )
+    derived_key = kdf.derive(passphrase_bytes)
+
+    return base64.urlsafe_b64encode(derived_key).decode('utf-8')
+
 
 def login_required(f):
     @wraps(f)
@@ -261,6 +277,17 @@ def remove_endpoint():
             return "Index not found"
     return render_template('remove_endpoint.html')
 
+@app.route('/endpoint_details', methods=['GET', 'POST'])
+@login_required
+def endpoint_details():
+    if request.method == 'POST':
+        index = request.form['index']
+        with open("urls.json", "r") as file:
+            data = json.load(file)
+            data = data[index]
+            return data
+    else:
+        pass
 
 # @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
