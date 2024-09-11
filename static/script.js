@@ -136,6 +136,12 @@ function editEndpoint(index) {
 
     // document.getElementById("old_password") = endpointData.
     // document.getElementById("new_password") = endpointData.
+    
+    // Fixes the placeholder to be placeholderWithText
+    updatePlaceHolder("new_endpoint");
+    updatePlaceHolder("new_url");
+    updatePlaceHolder("new_expiry");
+    updatePlaceHolder("new_uses");
     })
 }
 
