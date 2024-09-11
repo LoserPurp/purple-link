@@ -58,6 +58,7 @@ head, body {
 ul#endpointList {
     min-width: 573px;
     max-width: 750px;
+    z-index: 10;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -95,6 +96,7 @@ li:nth-child(2n) {
 }
 
 .infoBox {
+    z-index: 99;
     width: 100dvw;
     height: 100dvh;
     justify-content: center;
@@ -170,11 +172,15 @@ div#qrInfo {
     flex-direction: column;
 }
 
-
+#expiry, div#buttonUrlContainer {
+    transition: bottom .2s ease-out;
+    bottom: 250px;
+    position: relative;
+}
 
 .charlesLeclerc {
     background: var(--primary-color);
-    padding: 25px 0 25px 0;
+    padding: 0 0 25px 0;
     height: 100%;
     width: 312px;
 }
@@ -195,9 +201,14 @@ div.addUrlContainer {
 
 
 .enterUrlContainer {
+    position: relative;
+    z-index: 5;
     display: flex;
     align-items: center;
     flex-direction: column;
+    background-color: white;
+    z-index: 5;
+    position: relative;
 }
 
 div#expiry {
@@ -225,8 +236,12 @@ div#expiry {
     /* width: 100%; */
 }
 
-.inputContainerSpacing {
+.inputContainerSpacing:not(body > div > div > div.addUrlContainer > div > form > div.enterUrlContainer > div) {
     margin-bottom: 20px;
+}
+
+#expiry > div:nth-child(1){
+    margin-top: 20px;
 }
 
 .labelContainer {
@@ -411,8 +426,9 @@ input {
     justify-content: center;
     font-size: 17px;
     height: 45px;
-    align-items: 
-    center;position: fixed;
+    z-index: 97;
+    align-items: center;
+    position: fixed;
     width: 100%;
     opacity: 1;
     transition: opacity 2s ease-in-out; /* This defines the fade-out transition */
@@ -493,6 +509,8 @@ li {
     width: 100%;
     display: flex;
     overflow-y: auto;
+    z-index: 50;
+    position: relative;
     flex-direction: column;
     box-shadow: -1px 0 4px #000000, -2px 0 9px #575757;
     /* box-shadow: -1px 0 4px #ffffff, -2px 0 9px #bfbfbf; */
@@ -540,7 +558,7 @@ a.version {
     }
     input {
         color: black;
-        background: #efefef;
+        background: #f9f9f9;
     }
     .boxBox {
         background: #ffffff;

@@ -101,11 +101,21 @@ function copyEndpoint(index) {
 //Flips element from hidden to visible
 function setExpiry() {
     var expiryElement = document.getElementById("expiry");
-    if (expiryElement.style.display === "none") {
-        expiryElement.style.display = "block";
+    var buttonUrlContainer = document.getElementById("buttonUrlContainer");
+
+    // Toggle for #expiry
+    if (expiryElement.style.bottom === "0px") {
+        expiryElement.style.bottom = "250px";  // Move it down (hide it)
     } else {
-        expiryElement.style.display = "none";
-    }    
+        expiryElement.style.bottom = "0px";  // Move it up (show it)
+    }
+
+    // Toggle for .buttonUrlContainer
+    if (buttonUrlContainer.style.bottom === "0px") {
+        buttonUrlContainer.style.bottom = "250px";  // Move it down (hide it)
+    } else {
+        buttonUrlContainer.style.bottom = "0px";  // Move it up (show it)
+    }
 }
 
 
