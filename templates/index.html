@@ -23,7 +23,7 @@
         <div class="addUrlContainer">
             <div class="charlesLeclerc">
                 <form method="POST" action="/dashboard" class="addUrlFormContainer">
-                    <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;;padding: 25px 25px 0 25px; background: white; z-index: 5; position: relative;">
+                    <div class="h2Text">
                         <h1 class="addUrlHeader">Add URL</h1>
                         <a onclick="setExpiry()" style="font-size: 12px;text-decoration: underline; cursor: pointer;">Advanced Options</a>
                         <!-- <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()"> -->
@@ -39,13 +39,13 @@
 
         
                     </div>
-                    <div id="expiry" style="display: block; bottom: 250px;" hidden="true">
+                    <div id="expiry" style="display: block; bottom: 305px;" hidden="true">
                         
                         
                         <div class="inputContainer inputContainerSpacing">
                             <input type="text" id="path" name="path" onfocus="updatePlaceHolder('path')" style="width: 250px;">
                             <div class="labelContainer">
-                                <p id="pathplaceholder" class="placeholder" style="left: 139px;">Custom Path</p>
+                                <p id="pathplaceholder" class="placeholder" style="left: 139px;">Custom Endpoint</p>
                             </div>
                         </div>                      
                         <div class="inputContainer inputContainerSpacing">
@@ -66,6 +66,16 @@
                                 <p id="passplaceholder" class="placeholder" style="left: 139px;">Endpoint Password</p>
                             </div>
                         </div> 
+
+                        <div style="display: flex;width: 312px;flex-direction: row;height: 41.4px;justify-content: center; margin-bottom: 20px;">
+                            <div style=" width: 261.6px;display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                                <p style="font-size: 18px; color: var(--text-color);">Redirect</p>
+                                <div class="checkbox-wrapper-6">
+                                    <input class="tgl tgl-light" id="redirect" name="redirect" type="checkbox"/>
+                                    <label class="tgl-btn" for="redirect">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="buttonUrlContainer" id="buttonUrlContainer">
                         <button type="submit">Submit</button>
@@ -81,11 +91,11 @@
             <div id="endpointList">
                 <div class="urlListContainer">
                     <div class="grid-header">
-                        <div class="grid-header-item">Path</div>
+                        <div class="grid-header-item">Endpoint</div>
                         <div class="grid-header-item">URL</div>
-                        <div class="grid-header-item">Uses</div>
                         <div class="grid-header-item">Expiry</div>
-                        <div class="grid-header-item">Action</div>
+                        <div class="grid-header-item">Uses</div>
+                        <div class="grid-header-item">Actions</div>
                     </div>
                 
                     {% for key, path, url, uses, expiry in entries %}
@@ -115,9 +125,6 @@
                 <div id="changeEndpointContainer" hidden="true">
                     <h2>Change Endpoint</h2>
                     <form method="POST" action="/change_endpoint">
-
-
-
                         <div class="inputContainer inputContainerSpacing" style="display: none;">
                             <input type="text" id="index" name="index" required onfocus="updatePlaceHolder('index')">
                             <div class="labelContainer">
@@ -141,15 +148,23 @@
                         </div> 
 
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_expiry" name="expiry" onfocus="updatePlaceHolder('new_expiry')">
+                            <input type="datetime-local" id="new_expiry" name="expiry">
                             <div class="labelContainer">
-                                <p id="new_expiryplaceholder" class="placeholder">Change Expiry</p>
+                                <p id="new_expiryplaceholder" class="placeholder placeholderWithText">Change Expiry</p>
                             </div>
                         </div> 
-
-
-                        <!-- <label for="">Change Password</label> -->
-                        <div class="passwordContainerSidebySide">
+                        
+                        <div class="inputContainer inputContainerSpacing">
+                            <input type="text" id="new_uses" name="uses" onfocus="updatePlaceHolder('new_uses')">
+                            <div class="labelContainer">
+                                <p id="new_usesplaceholder" class="placeholder">Uses Left</p>
+                            </div>
+                        </div>
+                        
+                        
+                        <div style="margin-bottom: 20px;height: 41px; left: 39px;position: relative;" id="showPasswordButton"><a onclick="showPassword()" class="button">Change Password</a></div>                    
+                        
+                        <div class="passwordContainerSidebySide" style="display: none;">
                             <div class="inputContainer inputContainerSpacing">
                                 <input type="text" id="old_password" name="passwordOld" onfocus="updatePlaceHolder('old_password')">
                                 <div class="labelContainer">
@@ -163,14 +178,15 @@
                                 </div>
                             </div> 
                         </div>
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_uses" name="uses" onfocus="updatePlaceHolder('new_uses')">
-                            <div class="labelContainer">
-                                <p id="new_usesplaceholder" class="placeholder">Uses Left</p>
+                        
+                        <div style="margin-bottom: 20px;height: 41px;left: 39px;position: relative;display: flex;align-items: center;width: 421px;justify-content: space-between;">
+                            <p style="font-size: 18px; color: var(--text-color);">Redirect</p>
+                            <div class="checkbox-wrapper-6">
+                                <input class="tgl tgl-light" id="new_redirect" name="new_redirect" type="checkbox"/>
+                                <label class="tgl-btn" for="new_redirect">
                             </div>
-                        </div> 
-
+                        </div>
+                        
                         <button type="submit">Submit</button>
                     </form>
                 </div>
