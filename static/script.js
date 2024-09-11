@@ -126,8 +126,35 @@ function editEndpoint(index) {
     //Flips element from hidden to visible
     document.getElementById("changeEndpointContainer").hidden = false
     document.getElementById("index").value = index
+
+    getEndpointData(index).then(endpointData => {
+    console.log(endpointData);
+    document.getElementById("new_endpoint").value = endpointData.endpoint
+    document.getElementById("new_url").value = endpointData.url
+    document.getElementById("new_expiry").value = endpointData.expiry
+    document.getElementById("new_uses").value = endpointData.uses
+
+    // document.getElementById("old_password") = endpointData.
+    // document.getElementById("new_password") = endpointData.
+    })
 }
 
+
+async function getEndpointData(index) {
+    const formData = new FormData();
+    formData.append('index', index);
+
+    try {
+        const response = await fetch('/endpoint_details', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
 
 // function shortenURL() {
 //     length = document.getElementById("endpointList").children.length
