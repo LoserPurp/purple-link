@@ -13,7 +13,7 @@
     --White: #ffffff;
     --Black: #000000;
 
-    --ok-button-color: #5e5df0;
+    --ok-button-color: #7f00ff;
 }
 
 p.textInQRCode {
@@ -113,6 +113,12 @@ button, .button {
     border: 0;
 }
 
+.projectContainer {
+    display: flex;
+    flex-direction: row; 
+    height: 100%;
+}
+
 .button.long {
     width: 100%;
     display: block;
@@ -128,6 +134,8 @@ button, .button {
     position: fixed;
     bottom: 10px;
     left: 10px;
+    font-size: 25px;
+    color: var(--ok-button-color);
 }
 
 .boxBox {
@@ -221,10 +229,6 @@ div#expiry {
 
 .inputContainerSpacing:not(body > div > div > div.addUrlContainer > div > form > div.enterUrlContainer > div) {
     margin-bottom: 20px;
-}
-
-#expiry > div:nth-child(1){
-    margin-top: 20px;
 }
 
 .labelContainer {
@@ -323,7 +327,7 @@ input {
 
 .urlListContainer {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     width: calc(100% - 40px);
     padding: 20px;
     margin-top: 20px;
@@ -445,7 +449,7 @@ a, p, h1, h2, h3, label, button, input, div{
 .urlContainer {
     display: grid;
     width: 100%;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
 }
 
@@ -579,6 +583,34 @@ a.version {
   }
 
 
+  /* @media screen and (max-width: 1100px) {
+    .projectContainer {
+        flex-direction: column;
+    }
+    body > div > div > div.addUrlContainer > div > form > div.h2Text > a{
+        display: none !important;
+    }
+    .mobileUI{
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+    div#expiry, div#buttonUrlContainer{
+        bottom: 0px !important;
+    }
+    .inputContainer, .buttonUrlContainer{
+        display: block !important;
+    }
+    div.addUrlContainer{
+            align-items: baseline !important;
+    }
+    .inputContainerSpacing:not(body > div > div > div.addUrlContainer > div > form > div.enterUrlContainer > div) {
+        margin-bottom: 0 !important;
+    }
+    .charlesLeclerc{
+        width: 100% !important;
+    }
+} */
+
 
 @media (prefers-color-scheme: light) {
     :root{
@@ -589,7 +621,7 @@ a.version {
         --text-color: #000;
         --reverse-text-color: #fff;
     }
-    a:not(.button, .theURL), .urlListContainer, .addUrlHeader, a.version, .urlEndpoint, .boxBox , .urlListContainer > a, div.endpointListContainer > div.topNav > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
+    a:not(.button, .theURL, .buttonSettings), .urlListContainer, .addUrlHeader, a.version, .urlEndpoint, .boxBox , .urlListContainer > a, div.endpointListContainer > div.topNav > p,#endpointList, #endpointList > li:nth-child(1) > div > div.urlContainer > a ,body > div > div > div.addUrlContainer > div > form > h1 {
         color: var(--Black) !important;
     }
     img:not(#qrCode) {

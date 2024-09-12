@@ -199,7 +199,8 @@ def index():
                 v["endpoint"], 
                 v["url"], 
                 "never" if not v["expiry"] else v["expiry"], 
-                "unlimited" if v["uses"] < 0 else v["uses"]
+                "unlimited" if v["uses"] < 0 else v["uses"],
+                v["redirect"]
             ) 
                 for k, v in data.items()
         ]

@@ -105,7 +105,7 @@ function setExpiry() {
 
     // Toggle for #expiry
     if (expiryElement.style.bottom === "0px") {
-        expiryElement.style.bottom = "305px";  // Move it down (hide it)
+        expiryElement.style.bottom = "355px";  // Move it down (hide it)
     } else {
         expiryElement.style.bottom = "0px";  // Move it up (show it)
     }
@@ -130,13 +130,22 @@ function editEndpoint(index) {
     //Saves the endpoint data av a variable and changes the value of the coresponding feelds
     getEndpointData(index).then(endpointData => {
         function changeData(id, value) {
-            if (id != "new_redirect") {
+            if (id == "new_expiry" && document.getElementById(id).value == "" || id == "new_expiry" && document.getElementById(id).value != "") { 
+                document.getElementById(id).value = value
+            }
+            else if (id != "new_redirect") {
                 document.getElementById(id).value = value
                 updatePlaceHolder(id)
             }
             else if (value == 'on') {
                 console.log(id, value)
                 document.getElementById("new_redirect").checked = true
+                buttonNoAnimation()
+            }
+            else if (value == 'off') {
+                console.log(id, value)
+                document.getElementById("new_redirect").checked = false
+                buttonNoAnimation()
             }
         }
     //checks if entry is empty and updates the values
@@ -153,6 +162,41 @@ function editEndpoint(index) {
     var buttonUrlContainer = document.querySelector("#showPasswordButton");
     buttonUrlContainer.style.display = "flex";
     
+    function buttonNoAnimation() {
+        const buttonstyle = document.createElement('style');
+
+        buttonstyle.innerHTML = `
+        .checkbox-wrapper-6 .tgl:checked + .tgl-btn:after {
+            transition: none !important;
+        }
+        .checkbox-wrapper-6 .tgl-light + .tgl-btn:after{ 
+            transition: none !important;
+        }
+        .checkbox-wrapper-6 .tgl-light + .tgl-btn{
+            transition: none !important;
+        }
+        `;
+        // Append the style element to the document head
+        document.head.appendChild(buttonstyle);
+        setTimeout(() => {
+
+            buttonstyle.innerHTML = `
+            .checkbox-wrapper-6 .tgl:checked + .tgl-btn:after {
+                transition: all 0.2s ease !important;
+            }
+            .checkbox-wrapper-6 .tgl-light + .tgl-btn:after{ 
+                transition: all 0.2s ease !important;
+            }
+            .checkbox-wrapper-6 .tgl-light + .tgl-btn{
+                transition: all 0.4s ease !important;
+            }
+            `;
+            // Append the style element to the document head
+            document.head.appendChild(buttonstyle);
+
+          }, 1);
+    }
+
 }
 
 
@@ -271,6 +315,50 @@ window.onload = function() {
         link.style.minWidth = maxWidth + 'px';
         link.style.maxWidth = maxWidth + 'px'; // Set max-width same as min-width
     });
+
+    function dateFormat(){
+        // Customize the date format as needed
+        const dateFormat = "HH:mm DD.MM.YYYY";
+        const divider = "/";
+
+        const dateElements = document.querySelectorAll("#endpointList > div > div > div:nth-child(3) > a");
+
+        function formatDate(date, format, divider) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+
+            let formattedDate = format
+                .replace("DD", day)
+                .replace("MM", month)
+                .replace("YYYY", year)
+                .replace("HH", hours)
+                .replace("mm", minutes);
+
+            formattedDate = formattedDate.replace(/\./g, divider);
+
+            return formattedDate;
+        }
+
+        dateElements.forEach(dateElement => {
+            let dateText = dateElement.textContent.trim();
+            if (dateText.toLowerCase() === "never") {
+                return; 
+            }
+
+            let [datePart, timePart] = dateText.split(' ');
+
+            let originalDate = new Date(datePart + 'T' + timePart);
+
+            let formattedDateTime = formatDate(originalDate, dateFormat, divider);
+
+            dateElement.textContent = formattedDateTime;
+        });
+
+    }dateFormat()
+
 };
 
 
@@ -353,3 +441,4 @@ function updatePlaceHolder(input) {
 
 
 updatePlaceHolder("index");
+

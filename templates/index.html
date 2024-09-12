@@ -19,7 +19,7 @@
         {% endwith %}
 
     <div class="project">
-        <div style="display: flex;flex-direction: row; height: 100%;">
+        <div class="projectContainer">
         <div class="addUrlContainer">
             <div class="charlesLeclerc">
                 <form method="POST" action="/dashboard" class="addUrlFormContainer">
@@ -28,6 +28,7 @@
                         <a onclick="setExpiry()" style="font-size: 12px;text-decoration: underline; cursor: pointer;">Advanced Options</a>
                         <!-- <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()"> -->
                     </div>
+                    <div class="mobileUI">
                     <div class="enterUrlContainer">
 
                     <div class="inputContainer inputContainerSpacing">
@@ -39,7 +40,7 @@
 
         
                     </div>
-                    <div id="expiry" style="display: block; bottom: 305px;" hidden="true">
+                    <div id="expiry" style="display: block; bottom: 355px;" hidden="true">
                         
                         
                         <div class="inputContainer inputContainerSpacing">
@@ -77,11 +78,12 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                     <div class="buttonUrlContainer" id="buttonUrlContainer">
                         <button type="submit">Submit</button>
                     </div>   
                 </form>
-                <a href="/settings" class="buttonSettings"><i class="fa-solid fa-gear" style="font-size: 25px;color: #5e5df0;"></i></a>
+                <a href="/settings" class="buttonSettings"><i class="fa-solid fa-gear" ></i></a>
             </div>
         </div>
 
@@ -95,15 +97,17 @@
                         <div class="grid-header-item">URL</div>
                         <div class="grid-header-item">Expiry</div>
                         <div class="grid-header-item">Uses</div>
+                        <div class="grid-header-item">Redirect</div>
                         <div class="grid-header-item">Actions</div>
                     </div>
                 
-                    {% for key, path, url, uses, expiry in entries %}
+                    {% for key, path, url, uses, expiry, redirect in entries %}
                         <div class="grid-content">
                             <div class="grid-item"><a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a></div>
                             <div class="grid-item"><a class="theURL" id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a></div>
                             <div class="grid-item"><a>{{ uses }}</a></div>
                             <div class="grid-item"><a>{{ expiry }}</a></div>
+                            <div class="grid-item"><a>{{ redirect }}</a></div>
                             <div class="grid-item">
                                 <div class="urlButtonContainer">
                                     <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
