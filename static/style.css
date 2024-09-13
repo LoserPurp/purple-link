@@ -163,6 +163,28 @@ div#qrInfo {
     flex-direction: column;
 }
 
+.hideShow {
+    pointer-events: all;
+    cursor: pointer;
+    text-decoration: underline;
+    user-select: none;
+    font-size: 15px;
+    color: var(--hide-show-color);
+}
+
+.hideShowUnder {
+    text-decoration: none;
+}
+
+.hideShowFucused {
+    top: 2px;
+    position: relative;
+}
+
+#passwordplaceholder.placeholderWithText {
+    margin-bottom: 30px;
+}
+
 #expiry, div#buttonUrlContainer {
     transition: bottom .2s ease-out;
     bottom: 305px;

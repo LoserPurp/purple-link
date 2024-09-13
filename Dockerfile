@@ -1,21 +1,15 @@
-# syntax=docker/dockerfile:1
-
 # Use a specific version of Python, defaulting to 3.12.4
 ARG PYTHON_VERSION=3.12.4
 FROM python:${PYTHON_VERSION}-slim as base
 
-# Prevent Python from writing pyc files.
+# Prevent Python from writing pyc files and keep Python from buffering stdout and stderr
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
+# Create a non-privileged user that the app will run under
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -26,25 +20,33 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Copy the requirements.txt first to leverage Docker's caching mechanism
-COPY requirements.txt ./
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install the application dependencies from requirements.txt
-# Use cache for pip to speed up future builds
+# Copy the requirements file
+COPY requirements.txt .
+
+# Install the application dependencies
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code into the container
+# Copy the application code and other necessary files
 COPY . .
+
+# Create necessary directories and files
+RUN mkdir -p static/img && touch urls.json config.json users.json
 
 # Adjust ownership of the app files to the appuser
 RUN chown -R appuser:appuser /app
 
-# Switch to the non-privileged user to run the application.
+# Switch to the non-privileged user to run the application
 USER appuser
 
 # Expose the port that the Flask application will listen on
 EXPOSE 7237
 
-# Run the Flask application
-CMD ["python", "app.py"]
+# Run the Flask application using Waitress
+CMD ["python", "-m", "waitress", "--host=0.0.0.0", "--port=7237", "app:app"]

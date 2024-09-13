@@ -1,100 +1,30 @@
-let qxf
 
-window.onload = function() {
-    shortenURL()
-}
+function getEndpointData(index) {
+    const formData = new FormData();
+    formData.append('index', index);
 
-
-//XMLHttps request for removing entry a in the json file
-function removeEndpoint(index) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.onload = function () {
-        //check if request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            //redirect to index page
-            window.location.href = '/';
-        } else {
-            //display error
-            console.error('Request failed with status:', xhr.status);
-            alert('Error: Index not found');
+    return fetch('/endpoint_details', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
         }
-    };
-
-    //make the request
-    xhr.open('POST', '/remove_endpoint', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    //send the request
-    xhr.send('index=' + encodeURIComponent(index));
-}
-
-//requests a qr-code and displays it
-function makeQR(index) {
-    //hides old info in box and shows new info
-    document.getElementById("qrInfo").style.display = "flex"
-    document.getElementById("changeEndpointContainer").hidden = true
-
-    //makes qr code box visible
-    document.getElementById("infoBox").style.display = 'flex'
-    
-    var xhr = new XMLHttpRequest();
-
-    xhr.onload = function () {
-        // Check if request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse response JSON
-            var response = JSON.parse(xhr.responseText);
-
-            // Create image element
-            var img = document.createElement('img');
-            img.src = response.qr_image;
-
-            // Append image to the body or any other container
-            document.getElementById("qrCode").src = img.src;
-            
-            
-            document.getElementById("endpointPath").innerHTML = response.about[0].endpoint;
-            document.getElementById("endpointPath").href = response.about[0].endpoint;
-            document.getElementById("orgUrl").innerHTML = response.about[0].url;
-            document.getElementById("orgUrl").href = response.about[0].url;
-            document.getElementById("endpointExpiry").innerHTML = response.about[0].expiry;
-            document.getElementById("endpointPass").innerHTML = response.about[0].pass;
-            document.getElementById("endpointUses").innerHTML = response.about[0].uses;
-
-
-        } else {
-            // Display error
-            console.error('Request failed with status:', xhr.status);
-            alert('Error: Index not found');
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-    };
-
-    // Make the request
-    xhr.open('POST', '/qr', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    // Send the request
-    xhr.send('index=' + encodeURIComponent(index));
+        return response.json();
+    })
+    .then(data => data)
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
-
-
 
 function copyEndpoint(index) {
-    //gets endpoint
-    endpoint = document.getElementById("endpoint"+index).href;
-
-    //creates temporary input element
-    var tempInput = document.createElement("input");
-
-    //creates link with current selections values
-    tempInput.value = endpoint;
-
-    //creates element and deletes it after copying
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempInput);
+    const endpoint = document.getElementById("endpoint" + index).href;
+    navigator.clipboard.writeText(endpoint);
 }
 
 
@@ -103,19 +33,8 @@ function setExpiry() {
     var expiryElement = document.getElementById("expiry");
     var buttonUrlContainer = document.getElementById("buttonUrlContainer");
 
-    // Toggle for #expiry
-    if (expiryElement.style.bottom === "0px") {
-        expiryElement.style.bottom = "355px";  // Move it down (hide it)
-    } else {
-        expiryElement.style.bottom = "0px";  // Move it up (show it)
-    }
-
-    // Toggle for .buttonUrlContainer
-    if (buttonUrlContainer.style.bottom === "0px") {
-        buttonUrlContainer.style.bottom = "305px";  // Move it down (hide it)
-    } else {
-        buttonUrlContainer.style.bottom = "0px";  // Move it up (show it)
-    }
+    expiryElement.style.bottom = (expiryElement.style.bottom === "0px") ? "355px" : "0px";
+    buttonUrlContainer.style.bottom = (buttonUrlContainer.style.bottom === "0px") ? "305px" : "0px";
 }
 
 
@@ -135,15 +54,13 @@ function editEndpoint(index) {
             }
             else if (id != "new_redirect") {
                 document.getElementById(id).value = value
-                updatePlaceHolder(id)
+                // updatePlaceHolder(id)
             }
             else if (value == 'on') {
-                console.log(id, value)
                 document.getElementById("new_redirect").checked = true
                 buttonNoAnimation()
             }
             else if (value == 'off') {
-                console.log(id, value)
                 document.getElementById("new_redirect").checked = false
                 buttonNoAnimation()
             }
@@ -163,127 +80,128 @@ function editEndpoint(index) {
     buttonUrlContainer.style.display = "flex";
     
     function buttonNoAnimation() {
-        const buttonstyle = document.createElement('style');
-
-        buttonstyle.innerHTML = `
-        .checkbox-wrapper-6 .tgl:checked + .tgl-btn:after {
-            transition: none !important;
-        }
-        .checkbox-wrapper-6 .tgl-light + .tgl-btn:after{ 
-            transition: none !important;
-        }
-        .checkbox-wrapper-6 .tgl-light + .tgl-btn{
+        const style = document.createElement('style');
+        style.innerHTML = `
+        .checkbox-wrapper-6 .tgl:checked + .tgl-btn:after,
+        .checkbox-wrapper-6 .tgl-light + .tgl-btn:after,
+        .checkbox-wrapper-6 .tgl-light + .tgl-btn {
             transition: none !important;
         }
         `;
-        // Append the style element to the document head
-        document.head.appendChild(buttonstyle);
+        document.head.appendChild(style);
+    
         setTimeout(() => {
-
-            buttonstyle.innerHTML = `
-            .checkbox-wrapper-6 .tgl:checked + .tgl-btn:after {
-                transition: all 0.2s ease !important;
-            }
-            .checkbox-wrapper-6 .tgl-light + .tgl-btn:after{ 
-                transition: all 0.2s ease !important;
-            }
-            .checkbox-wrapper-6 .tgl-light + .tgl-btn{
-                transition: all 0.4s ease !important;
-            }
-            `;
-            // Append the style element to the document head
-            document.head.appendChild(buttonstyle);
-
-          }, 1);
+            style.remove();
+        }, 1);
     }
-
 }
 
 
-async function getEndpointData(index) {
-    const formData = new FormData();
-    formData.append('index', index);
+document.addEventListener('DOMContentLoaded', () => {
 
-    try {
-        const response = await fetch('/endpoint_details', {
-            method: 'POST',
-            body: formData
+    const excludedInputIds = ['expire', 'new_expiry'];
+    const allInputs = document.querySelectorAll('input');
+
+    allInputs.forEach(input => {
+        const { id: inputId, value, dataset } = input;
+
+        if (excludedInputIds.includes(inputId)) return;
+
+        // Option A: Using data-placeholder attribute
+        const placeholderId = dataset.placeholder;
+        // Option B: Using a naming convention
+        // const placeholderId = `${inputId}placeholder`;
+
+        if (!placeholderId) {
+            // console.warn(`No placeholder ID found for input "${inputId}".`);
+            return;
+        }
+
+        const placeholder = document.getElementById(placeholderId);
+        if (!placeholder) {
+            console.warn(`Placeholder element "${placeholderId}" not found.`);
+            return;
+        }
+
+        const hideShow = document.getElementById(`hideShow${inputId}`);
+
+        const toggleClasses = () => {
+            const hasValue = input.value.trim() !== "";
+            const isFocused = document.activeElement === input;
+            placeholder.classList.toggle('placeholderWithText', hasValue || isFocused);
+            if (hideShow) hideShow.classList.toggle('hideShowFocused', hasValue || isFocused);
+            if (inputId === 'password') {
+                document.querySelector("#hideShowpassword").style.bottom = hasValue || isFocused ? "2px" : "3px";
+            }
+        };
+
+        // Initialize state
+        toggleClasses();
+
+        // Event listeners
+        input.addEventListener('input', toggleClasses);
+        input.addEventListener('focus', () => {
+            placeholder.classList.add('placeholderWithText');
+            if (hideShow) hideShow.classList.add('hideShowFocused');
+            if (inputId === 'password') {
+                document.querySelector("#hideShowpassword").style.bottom = "2px";
+            }
         });
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
+        input.addEventListener('blur', toggleClasses);
 
-document.addEventListener("DOMContentLoaded", function() {
+        // Detect programmatic value changes
+        const originalValueDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+        Object.defineProperty(input, 'value', {
+            get() {
+                return originalValueDescriptor.get.call(this);
+            },
+            set(val) {
+                originalValueDescriptor.set.call(this, val);
+                toggleClasses();
+            }
+        });
+    });
 
 
-    // Get the elements
+
+    //Info box
     var infoBox = document.getElementById("infoBox");
     var boxBox = document.querySelector(".boxBox");
     var endpointList = document.getElementById("endpointList");
 
-        // Function to handle clicks
-        // Listen for both click outside and 'Esc' key events
-        document.addEventListener('click', handleClickOutside);
-        document.addEventListener('keydown', handleKeyPress);
-
-        function handleClickOutside(event) {
-
+        document.addEventListener('click', (event) => {
             try {
-                // Check if the clicked element is outside of the boxBox
                 if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
-                    // If it's outside, hide the infoBox
                     infoBox.style.display = "none";
                 }
-                
-            } catch (error) {
-                
-            }
+            } catch (error) {}
+        });
 
-        }
-
-
-        function handleKeyPress(event) {
-            // Check if the 'Esc' key was pressed
+        document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
-                // Hide the infoBox when 'Esc' is pressed
                 infoBox.style.display = "none";
             }
-        }        
+        });
 
-    // Add click event listener to the document
-    document.addEventListener("click", handleClickOutside);
-
+    //Flash message
     try {
         const flashMessage = document.querySelector("body > div.flashMessage");
         if (flashMessage) {
-            flashMessage.style.opacity = '1'; // Start fading out the entire flashMessage container
-        }
-        setTimeout(() => {
-            if (flashMessage) {
-                flashMessage.style.opacity = '0'; // Start fading out the entire flashMessage container
+            if (flashMessage.style.opacity === '1') {
+                clearTimeout(flashMessage.timeoutId);
             }
-        }, 3000); // Wait for 3 seconds before starting the fade-out
-
-    } catch (error) {
-        
-    }
+            flashMessage.style.opacity = '1';
+            flashMessage.timeoutId = setTimeout(() => flashMessage.style.opacity = '0', 3000);
+        }
+    } catch (error) {}
 
 });
-
 function downloadQr() {
     var image = document.getElementById("qrCode");
-    
-    //Create a element
     var downloadLink = document.createElement("a");
     downloadLink.href = image.src;
     downloadLink.download = "qrcode.jpg";
-
-    document.body.appendChild(downloadLink);
     downloadLink.click();
-    document.body.removeChild(downloadLink);
 }
 
 function showPassword(){
@@ -316,96 +234,58 @@ window.onload = function() {
         link.style.maxWidth = maxWidth + 'px'; // Set max-width same as min-width
     });
 
-    function dateFormat(){
-        // Customize the date format as needed
-        const dateFormat = "HH:mm DD.MM.YYYY";
-        const divider = "/";
-
+    function dateFormat() {
+        const dateFormat = "HH:mm DD.MM.YYYY".replace(/\./g, "/");
         const dateElements = document.querySelectorAll("#endpointList > div > div > div:nth-child(3) > a");
-
-        function formatDate(date, format, divider) {
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-
-            let formattedDate = format
-                .replace("DD", day)
-                .replace("MM", month)
-                .replace("YYYY", year)
-                .replace("HH", hours)
-                .replace("mm", minutes);
-
-            formattedDate = formattedDate.replace(/\./g, divider);
-
-            return formattedDate;
-        }
 
         dateElements.forEach(dateElement => {
             let dateText = dateElement.textContent.trim();
-            if (dateText.toLowerCase() === "never") {
-                return; 
-            }
+            if (dateText.toLowerCase() === "never") return;
 
             let [datePart, timePart] = dateText.split(' ');
-
             let originalDate = new Date(datePart + 'T' + timePart);
 
-            let formattedDateTime = formatDate(originalDate, dateFormat, divider);
+            let formattedDate = dateFormat
+                .replace("DD", originalDate.getDate().toString().padStart(2, '0'))
+                .replace("MM", (originalDate.getMonth() + 1).toString().padStart(2, '0'))
+                .replace("YYYY", originalDate.getFullYear())
+                .replace("HH", originalDate.getHours().toString().padStart(2, '0'))
+                .replace("mm", originalDate.getMinutes().toString().padStart(2, '0'));
 
-            dateElement.textContent = formattedDateTime;
+            dateElement.textContent = formattedDate;
         });
-
-    }dateFormat()
+    }
+    dateFormat();
 
 };
 
 
-function updatePlaceHolder(input) {
+var isPasswordVisible = false;
 
-    var usernameInput = document.getElementById(input);
-    var placeholderParagraph = document.getElementById(input+'placeholder');
+function togglePassword(input) {
+
+
     var hideshow = document.querySelector("#hideShow"+input)
-  
-  try {
-    hideshow.classList.add('hideShowFucused');
-    placeholderParagraph.classList.add('placeholderWithText');
-  
-    document.getElementById(input).addEventListener('blur', function() {
-        placeholderParagraph.classList.remove('placeholderWithText');
-        hideshow.classList.remove('hideShowFucused');
-        if (usernameInput.value !== "") {
-          placeholderParagraph.classList.add('placeholderWithText');
-          hideshow.classList.add('hideShowFucused');
-        } else {
-          placeholderParagraph.classList.remove('placeholderWithText');
-          hideshow.classList.remove('hideShowFucused');
-        }
-   
-      });
-  
-    } catch (error) {
-        try {
-            
-
-    placeholderParagraph.classList.add('placeholderWithText');
-  
-    document.getElementById(input).addEventListener('blur', function() {
-        placeholderParagraph.classList.remove('placeholderWithText');
-        if (usernameInput.value !== "") {
-          placeholderParagraph.classList.add('placeholderWithText');
-        } else {
-          placeholderParagraph.classList.remove('placeholderWithText');
-        }
-   
-      });
-    } catch (error) {}
+      var passwordInput = document.getElementById(input);
+        
+      isPasswordVisible = !isPasswordVisible;
+    
+      if (isPasswordVisible) {
+        passwordInput.type = 'text';
+        hideshow.innerHTML = "Hide"
+        hideshow.classList.add('hideShowUnder')
+      } else {
+        passwordInput.type = 'password';
+        hideshow.innerHTML = "Show"
+        hideshow.classList.remove('hideShowUnder')
+      }
     }
-  }
 
 
-  function showSomething(getName) {
+
+
+
+function showSomething(getName) {
     try {
         const container = document.getElementById('endpointList');
         container.innerHTML = '';  // Clear the container
@@ -440,5 +320,64 @@ function updatePlaceHolder(input) {
 }
 
 
-updatePlaceHolder("index");
 
+//XMLHttps request for removing entry a in the json file
+function removeEndpoint(index) {
+    fetch('/remove_endpoint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'index=' + encodeURIComponent(index)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Request failed with status: ' + response.status);
+        window.location.href = '/';
+    })
+    .catch(error => {
+        console.error('Request failed:', error);
+        alert('Error: Index not found');
+    });
+}
+
+//requests a qr-code and displays it
+function makeQR(index) {
+    const elementsToUpdate = {
+        qrInfo: "flex",
+        changeEndpointContainer: true,
+        infoBox: "flex"
+    };
+
+    Object.keys(elementsToUpdate).forEach(id => {
+        const element = document.getElementById(id);
+        if (id === "changeEndpointContainer") {
+            element.hidden = elementsToUpdate[id];
+        } else {
+            element.style.display = elementsToUpdate[id];
+        }
+    });
+
+    fetch('/qr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'index=' + encodeURIComponent(index)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Request failed with status: ' + response.status);
+        return response.json();
+    })
+    .then(response => {
+        const { qr_image, about } = response;
+        const { endpoint, url, expiry, pass, uses } = about[0];
+        document.getElementById("qrCode").src = qr_image;
+        document.getElementById("endpointPath").innerHTML = endpoint;
+        document.getElementById("endpointPath").href = endpoint;
+        document.getElementById("orgUrl").innerHTML = url;
+        document.getElementById("orgUrl").href = url;
+        document.getElementById("endpointExpiry").innerHTML = expiry;
+        document.getElementById("endpointPass").innerHTML = pass;
+        document.getElementById("endpointUses").innerHTML = uses;
+    })
+    .catch(error => {
+        console.error(error);
+        alert('Error: Index not found');
+    });
+}
