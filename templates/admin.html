@@ -2,10 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% include 'head.html' %}
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </head>
 <body>
-    YOYO
+    <div class="project">
+        <h1>Admin Panel</h1>
+        <canvas id="usageChart" width="400" height="200"></canvas>
+        <h2>Most Used IP Addresses</h2>
+        <ul id="ipList"></ul>
+        <h2>Most Used User Agents</h2>
+        <ul id="userAgentList"></ul>
+        <h2>Recent Requests</h2>
+        <ul id="requestList"></ul>
+    </div>
 </body>
 </html>

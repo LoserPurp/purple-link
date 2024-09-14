@@ -7,11 +7,10 @@ QR code download
 password protection
 max uses per endpoint
 redirect page
-
+logging
+users
 
 !TODO
-logging
 stats page
-users
 url validation
 rate limitaion

@@ -17,7 +17,7 @@ import io
 import base64
 import validators
 from PIL import Image
-
+import requests  # Add this import at the top
 
 app = Flask(__name__)
 app.secret_key = 'key69'
@@ -32,6 +32,20 @@ file_path = os.path.join(script_directory, url_check)
 if not os.path.isfile(file_path):
     with open(file_path, 'w') as file:
         json.dump({}, file) 
+
+# Log user access
+def log_user_access(endpoint, user_agent):
+    try:
+        ip_address = requests.get('https://ip.olayzen.net').text.strip()
+    except requests.RequestException:
+        ip_address = 'Unknown'  # Fallback if the request fails
+
+    log_entry = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - IP: {ip_address} - Endpoint: {endpoint} - User Agent: {user_agent}\n"
+    log_file_path = os.path.join(script_directory, "access.log")  # Change to .log file
+
+    # Append log entry to the log file
+    with open(log_file_path, 'a') as log_file:
+        log_file.write(log_entry)
 
 #makes random string
 def generate_random_string():
@@ -48,7 +62,6 @@ except:
     print("config file not found")
     exit(1)
 
-
 def hash(passphrase, salt="salt123!".encode(), iterations=100000):
     passphrase_bytes = passphrase.encode('utf-8')
     kdf = PBKDF2HMAC(
@@ -61,7 +74,6 @@ def hash(passphrase, salt="salt123!".encode(), iterations=100000):
 
     return base64.urlsafe_b64encode(derived_key).decode('utf-8')
 
-
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -70,7 +82,6 @@ def login_required(f):
             return redirect(url_for('home'))  # Redirect to login if not logged in
         return f(*args, **kwargs)
     return decorated_function
-
 
 #Checks if the time in an entry is older than when the check runs
 def check_time():
@@ -94,20 +105,6 @@ def check_time():
                 print(entry[0] + " Removed")
                 return redirect('/404.html')
 
-
-
-# def add_time(hours):
-#     current_time = datetime.now()
-
-#     # Add 24 hours to the current time
-#     delta = timedelta(hours=hours)
-#     updated_time = current_time + delta
-
-#     # Convert the updated time to string and remove seconds and microseconds
-#     current_time = updated_time.strftime("%Y-%m-%d %H:%M")
-
-#     return current_time
-
 def convert_time_format(time_str):
     if not time_str:
         return ""
@@ -118,12 +115,8 @@ def convert_time_format(time_str):
     # Convert the datetime object back to a string in the same format
     return dt.strftime('%Y-%m-%d %H:%M')
 
-
-
 def not_found():
     return render_template('404.html'), 404
-
-
 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
@@ -206,8 +199,6 @@ def index():
         ]
         return render_template("index.html", entries=entries)
 
-
-
 @app.route("/qr", methods=["POST"])
 @login_required
 def make_qr():
@@ -261,7 +252,6 @@ def make_qr():
 
     # Return the data URL and entries as JSON
     return jsonify({"qr_image": data_url, "about": entries})
-
 
 #change endpoint
 @app.route('/change_endpoint', methods=['GET', 'POST'])
@@ -320,7 +310,6 @@ def change_endpoint():
             return "Index not found"
     return redirect('/')
 
-
 #remove endpoint
 @app.route('/remove_endpoint', methods=['GET', 'POST'])
 @login_required
@@ -333,7 +322,6 @@ def remove_endpoint():
         else:
             return "Index not found"
     return render_template('remove_endpoint.html')
-
 
 @app.route('/endpoint_details', methods=['GET', 'POST'])
 @login_required
@@ -352,11 +340,9 @@ def endpoint_details():
     else:
         pass
 
-
 # @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
 def redirect_url(path):
-
     endpoint = '/' + path if path else '/'
     uses = fetchUrl.find_endpoint_uses(endpoint)
     url = fetchUrl.find_endpoint(endpoint)
@@ -370,6 +356,10 @@ def redirect_url(path):
         fetchUrl.remove_endpoint(key)
         return not_found()
 
+    # Log user access
+    user_agent = request.headers.get('User-Agent')
+    ip_address = request.remote_addr
+    log_user_access(endpoint, user_agent)
 
     if not expected_password:
         if fetchUrl.redirect(endpoint):
@@ -381,11 +371,9 @@ def redirect_url(path):
                     fetchUrl.remove_endpoint(key)
             return redirect(url)
 
-
     if request.method == 'POST':
         # Get the password entered by the user
         provided_password = request.form.get('password')
-
 
         if provided_password == expected_password:
             # If the password is correct, redirect
@@ -401,20 +389,17 @@ def redirect_url(path):
         # Render the password input form
         return render_template('auth.html', path=endpoint)
 
-
 @app.route('/redirect')
 def redirect_page():
     endpoint = request.args.get('endpoint')
     url = fetchUrl.find_endpoint(endpoint)
     return render_template('redirect.html', url=url, wait=5000)
 
-
 @app.route('/')
 def home():
     if 'username' in session:
         return redirect(url_for('index'))
     return render_template('login.html')
-
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -437,7 +422,6 @@ def login():
         flash('Invalid username or password. Please try again.')
         return render_template('login.html')
 
-
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
     if 'username' in session:
@@ -449,7 +433,6 @@ def settings():
         return render_template('settings.html', current_theme=current_theme)
     return redirect(url_for('login'))
 
-
 @app.route('/logout')
 def logout():
     # Clear the session data
@@ -458,7 +441,6 @@ def logout():
 
     # Redirect the user to the home or login page
     return redirect(url_for('home'))
-
 
 @app.route('/admin-panel')
 def admin_panel():
@@ -473,6 +455,57 @@ def admin_panel():
         flash('You need to log in first.')
         return redirect(url_for('index'))  # Redirect to the home page if not logged in
 
+@app.route('/admin/data')
+@login_required
+def admin_data():
+    # Load access log data
+    log_file_path = os.path.join(script_directory, "access.log")
+    with open(log_file_path, 'r') as log_file:
+        logs = log_file.readlines()
+
+    ip_count = {}
+    user_agent_count = {}
+    requests = []
+
+    for log in logs:
+        parts = log.split(' - ')
+        if len(parts) >= 4:
+            timestamp, ip, endpoint, user_agent = parts[0], parts[1], parts[2], parts[3].strip()
+            requests.append({'timestamp': timestamp, 'ip': ip, 'agent': user_agent})
+
+            if ip in ip_count:
+                ip_count[ip] += 1
+            else:
+                ip_count[ip] = 1
+
+            if user_agent in user_agent_count:
+                user_agent_count[user_agent] += 1
+            else:
+                user_agent_count[user_agent] = 1
+
+    # Sort and get the most used IPs and User Agents
+    most_used_ips = sorted(ip_count.items(), key=lambda x: x[1], reverse=True)[:5]
+    most_used_user_agents = sorted(user_agent_count.items(), key=lambda x: x[1], reverse=True)[:5]
+
+    # Prepare data for the chart
+    chart_data = {}
+    for request in requests:
+        endpoint = request['agent']  # Change this to the correct key if needed
+        if endpoint in chart_data:
+            chart_data[endpoint] += 1
+        else:
+            chart_data[endpoint] = 1
+
+    chart_labels = list(chart_data.keys())
+    chart_values = list(chart_data.values())
+
+    return jsonify({
+        'mostUsedIPs': [{'address': ip, 'count': count} for ip, count in most_used_ips],
+        'mostUsedUserAgents': [{'agent': agent, 'count': count} for agent, count in most_used_user_agents],
+        'requests': requests,
+        'chartLabels': chart_labels,
+        'chartData': chart_values
+    })
 
 @app.route('/settings/users')
 @login_required
