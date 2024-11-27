@@ -86,7 +86,7 @@ a {
     align-items: center;
     position: fixed;
     top: 0;
-    background: #000000b0;
+    background: #000000b5;
 }
 
 /* CSS */
@@ -651,5 +651,9 @@ a.version {
     }
     .urlListContainer {
         background: transparent;
+    }
+
+    .infoBox {
+        background: #0000003b;
     }
 }

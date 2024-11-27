@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
+from flask_caching import Cache
 from waitress import serve
 from functools import wraps
 from datetime import datetime, timedelta
@@ -21,6 +22,12 @@ import requests  # Add this import at the top
 
 app = Flask(__name__)
 app.secret_key = 'key69'
+
+# Basic configuration for in-memory caching
+app.config['CACHE_TYPE'] = 'SimpleCache'  # Choose a caching backend
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Default timeout in seconds
+
+cache = Cache(app)
 
 # Check if urls.json exists
 url_check = 'urls.json'
