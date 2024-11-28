@@ -1,4 +1,12 @@
 let isInitialized = false;
+let konamiCode = [
+    "ArrowUp", "ArrowUp",
+    "ArrowDown", "ArrowDown",
+    "ArrowLeft", "ArrowRight",
+    "ArrowLeft", "ArrowRight",
+    "b", "a"
+];
+let konamiCodePosition = 0;
 
 function initializeDraggable() {
     if (isInitialized) return; // Prevent re-initialization
@@ -68,4 +76,55 @@ function initializeDraggable() {
             body.classList.remove('no-select');
         }
     });
+
+    // Initialize the Konami Code listener
+    document.addEventListener('keydown', handleKonamiCode);
+}
+
+// Konami Code Easter Egg Logic
+function handleKonamiCode(event) {
+    const key = event.key;
+    if (key === konamiCode[konamiCodePosition]) {
+        konamiCodePosition++;
+        if (konamiCodePosition === konamiCode.length) {
+            konamiCodeActivated();
+            konamiCodePosition = 0; // Reset the sequence
+        }
+    } else {
+        konamiCodePosition = 0; // Reset on incorrect input
+    }
+}
+
+// Easter Egg: Bouncing Logic
+function konamiCodeActivated() {
+    const draggable = document.querySelector('.draggable');
+    const rect = draggable.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    let xDirection = 1; // 1 for right, -1 for left
+    let yDirection = 1; // 1 for down, -1 for up
+    let speed = 1; // Movement speed
+
+    const bounce = () => {
+        const rect = draggable.getBoundingClientRect();
+        let left = rect.left + speed * xDirection;
+        let top = rect.top + speed * yDirection;
+
+        // Reverse direction if hitting boundaries
+        if (left <= 0 || left + rect.width >= windowWidth) {
+            xDirection *= -1;
+        }
+        if (top <= 0 || top + rect.height >= windowHeight) {
+            yDirection *= -1;
+        }
+
+        // Apply new position
+        draggable.style.left = `${left}px`;
+        draggable.style.top = `${top}px`;
+
+        requestAnimationFrame(bounce); // Continue animation
+    };
+
+    bounce(); // Start bouncing
 }
