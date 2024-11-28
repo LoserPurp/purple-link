@@ -128,43 +128,44 @@
         </div>
 
         <div class="infoBox" id="infoBox" style="display: none;">
-            <div class="boxBox">
-
-                <div id="changeEndpointContainer" hidden="true">
-                    <h2>Change Endpoint</h2>
+            <div class="boxBox draggable">
+                <div class="drag-headerContainer" style="display: flex;flex-direction: row;align-items: center;">
+                    <div class="drag-header"></div>
+                    <div id="closeBoxBox" class="boxBoxClose" onclick="closeBoxBox()">╳</div>
+                </div>
+                <div id="changeEndpointContainer">
+                    <div class="endpointContainer">
+                        <h2>Change Endpoint</h2>
+                        <input type="text" id="index" name="index" required readonly>
+                    </div>
+                    
+                    
                     <form method="POST" action="/change_endpoint">
-                        <div class="inputContainer inputContainerSpacing" style="display: none;">
-                            <input type="text" id="index" name="index" data-placeholder="indexplaceholder" required>
-                            <div class="labelContainer">
-                                <p id="indexplaceholder" class="placeholder">Endpoint Number</p>
-                            </div>
-                        </div>  
-
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_endpoint" name="new_endpoint" onfocus="updatePlaceHolder('new_endpoint')" style="width: 250px;">
-                            <div class="labelContainer">
+                            <input type="text" id="new_endpoint" name="new_endpoint" onfocus="updatePlaceHolder('new_endpoint')">
+                            <div class="labelContainer labelContainerLong">
                                 <p id="new_endpointplaceholder" class="placeholder" style="left: 139px;">Enter URL</p>
                             </div>
                         </div> 
     
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_url" name="new_url" onfocus="updatePlaceHolder('new_url')" style="width: 250px;">
-                            <div class="labelContainer">
+                            <input type="text" id="new_url" name="new_url" onfocus="updatePlaceHolder('new_url')">
+                            <div class="labelContainer labelContainerLong">
                                 <p id="new_urlplaceholder" class="placeholder" style="left: 139px;">Change URL</p>
                             </div>
                         </div> 
 
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="datetime-local" id="new_expiry" name="new_url" onfocus="updatePlaceHolder('new_expiry')" style="width: 250px;">
-                            <div class="labelContainer">
+                            <input type="datetime-local" id="new_expiry" name="new_expiry">
+                            <div class="labelContainer labelContainerLong">
                                 <p id="new_expiryplaceholder" class="placeholder placeholderWithText" style="left: 139px;">Change Expiry</p>
                             </div>
                         </div> 
 
 
                         <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_uses" name="uses" onfocus="updatePlaceHolder('new_uses')" style="width: 250px;">
-                            <div class="labelContainer">
+                            <input type="text" id="new_uses" name="uses" onfocus="updatePlaceHolder('new_uses')">
+                            <div class="labelContainer labelContainerLong">
                                 <p id="new_usesplaceholder" class="placeholder" style="left: 139px;">Uses Left</p>
                             </div>
                         </div> 
@@ -176,16 +177,16 @@
 
 
                             <div class="inputContainer inputContainerSpacing">
-                                <input type="text" id="old_password" name="passwordOld" onfocus="updatePlaceHolder('old_password')">
-                                <div class="labelContainer">
-                                    <p id="old_passwordplaceholder" class="placeholder" style="left: 139px;">Uses Left</p>
+                                <input type="text" id="old_password" name="old_password" onfocus="updatePlaceHolder('old_password')">
+                                <div class="labelContainer labelContainerShort">
+                                    <p id="old_passwordplaceholder" class="placeholder" style="left: 139px;">Old Password</p>
                                 </div>
                             </div> 
 
                             <div class="inputContainer inputContainerSpacing">
-                                <input type="text" id="new_password" name="password" onfocus="updatePlaceHolder('new_password')">
-                                <div class="labelContainer">
-                                    <p id="new_passwordplaceholder" class="placeholder" style="left: 139px;">Uses Left</p>
+                                <input type="text" id="new_password" name="new_password" onfocus="updatePlaceHolder('new_password')">
+                                <div class="labelContainer labelContainerShort">
+                                    <p id="new_passwordplaceholder" class="placeholder" style="left: 139px;">New Password</p>
                                 </div>
                             </div> 
                         </div>

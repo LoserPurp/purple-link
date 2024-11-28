@@ -1,17 +1,11 @@
+// Function to close the infoBox
+function closeBoxBox() {
+    infoBox.style.display = "none";
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     //Info box
     var infoBox = document.getElementById("infoBox");
-    var boxBox = document.querySelector(".boxBox");
-    var endpointList = document.getElementById("endpointList");
-
-        document.addEventListener('click', (event) => {
-            try {
-                if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
-                    infoBox.style.display = "none";
-                }
-            } catch (error) {}
-        });
-
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 infoBox.style.display = "none";

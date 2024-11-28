@@ -144,11 +144,42 @@ button, .button {
     border-radius: 7px;
     height: min-content;
     background: var(--primary-color);
-    padding: 25px;
+    padding: 0 25px 25px 25px;
     justify-content: center;
     /* border: 4px solid #303030; */
     /* backdrop-filter: blur(792px); */
 }
+
+.drag-header {
+    width: 524px;
+    padding: 18px;
+}
+
+.drag-headerContainer{
+    cursor: move;
+    background-color: var(--primary-color);
+    width: 550px;
+    position: relative;
+    left: -25px;
+    border-radius: 7px 7px 0 0;
+}
+
+div#closeBoxBox {
+    padding: 10px;
+    font-size: 11px;
+    cursor: pointer !important;
+    user-select: none;
+}
+
+/* Prevent text selection */
+.no-select {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+    user-select: none;         /* Standard syntax */
+    pointer-events: none;
+}
+  
 
 
 img#qrCode {
@@ -256,14 +287,22 @@ div#expiry {
 .labelContainer {
     display: flex;
     flex-direction: row;
-    width: 520px;
+    width: 517px;
     position: absolute;
     justify-content: space-between;
     align-items: center;
     pointer-events: none;
 }
 
-input {
+.labelContainerShort {
+    width: 455px;
+}
+
+.labelContainerLong {
+    width: 675px;
+} 
+
+input:not(#index) {
     color: var(--text-color);
     background: var(--tertiary-color);
     border: 1px solid var(--input-border);
@@ -284,11 +323,7 @@ input {
 }
 
 .passwordContainerSidebySide > div > input {
-    width: 188.5px;
-}
-
-.passwordContainerSidebySide > div > .labelContainer > p{
-    left: 172px;
+    width: 188.5px !important;
 }
 
 .placeholderWithText {
@@ -392,7 +427,16 @@ input {
     vertical-align: middle;
 }
 
+.endpointContainer{
+    display: flex;
+}
 
+input#index {
+    border: 0;
+    font-size: 24px;
+    margin-left: 5px;
+    width: 12px;
+}
 .grid-content {
     display: contents;
 }
@@ -429,9 +473,24 @@ input {
     transition: opacity 2s ease-in-out; /* This defines the fade-out transition */
 }
 
+/* Purple color on hover */
+img.iconCopy:hover {
+    filter: brightness(0) saturate(100%) invert(22%) sepia(100%) saturate(7425%) hue-rotate(270deg) brightness(98%) contrast(101%) !important;
+}
+/* Green color on hover */
+img.iconQR:hover {
+    filter: brightness(0) saturate(100%) invert(22%) sepia(100%) saturate(7425%) hue-rotate(120deg) brightness(98%) contrast(101%) !important;
+}
+/* Blue color on hover */
+img.iconEdit:hover {
+    filter: brightness(0) saturate(100%) invert(22%) sepia(100%) saturate(7425%) hue-rotate(240deg) brightness(98%) contrast(101%) !important;
+}
+
+/* Red color on hover */
 img.iconRemove:hover {
     filter: brightness(0) saturate(100%) invert(22%) sepia(100%) saturate(7425%) hue-rotate(0deg) brightness(98%) contrast(101%) !important;
 }
+
 
 .urlButtonContainer > img {
     padding: 0 3px;
@@ -473,6 +532,15 @@ a, p, h1, h2, h3, label, button, input, div{
     width: 100%;
     grid-template-columns: repeat(6, 1fr);
     gap: 10px;
+}
+
+.draggable {
+    position: absolute; /* Allow it to move freely */
+    top: 100px;
+    left: 100px;
+    z-index: 1000; /* Ensure it's on top */
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .urlButtonContainer {

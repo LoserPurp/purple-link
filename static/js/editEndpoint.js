@@ -13,8 +13,8 @@ function editEndpoint(index) {
                 document.getElementById(id).value = value
             }
             else if (id != "new_redirect") {
-                document.getElementById(id).value = value
                 // updatePlaceHolder(id)
+                document.getElementById(id).value = value
             }
             else if (value == 'on') {
                 document.getElementById("new_redirect").checked = true
@@ -34,7 +34,11 @@ function editEndpoint(index) {
     //checks if entry is empty and updates the values
     for (key in endpointData) {
         if (endpointData[key]) {
-            id = "new_"+key
+            if (key == "pass") {
+                id = "old_password"
+            }
+            else {id = "new_"+key}
+            
             changeData(id, endpointData[key])
         }
     }

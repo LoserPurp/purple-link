@@ -268,12 +268,12 @@ def change_endpoint():
         index = request.form['index']
 
         endpoint = request.form['new_endpoint']
-        url = request.form['url']
-        expiry = request.form['expiry']
+        url = request.form['new_url']
+        expiry = request.form['new_expiry']
         uses = request.form['uses']
 
-        old_password = request.form['passwordOld']
-        new_password = request.form['password']
+        old_password = request.form['old_password']
+        new_password = request.form['new_password']
 
         try:
             if request.form['new_redirect']:
