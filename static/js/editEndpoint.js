@@ -63,4 +63,5 @@ function editEndpoint(index) {
             style.remove();
         }, 1);
     }
+    initializeDraggable();
 }

@@ -169,6 +169,14 @@ div#closeBoxBox {
     font-size: 11px;
     cursor: pointer !important;
     user-select: none;
+    transition: all .2s ease;
+    border-radius: 0 7px 0 0;
+    color: black;
+}
+
+div#closeBoxBox:hover {
+    background-color: red;
+    color: white;
 }
 
 /* Prevent text selection */

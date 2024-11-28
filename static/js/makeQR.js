@@ -40,4 +40,5 @@ function makeQR(index) {
         console.error(error);
         alert('Error: Index not found');
     });
+    initializeDraggable();
 }
