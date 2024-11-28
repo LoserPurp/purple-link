@@ -136,11 +136,13 @@
                 <div id="changeEndpointContainer">
                     <div class="endpointContainer">
                         <h2>Change Endpoint</h2>
-                        <input type="text" id="index" name="index" required readonly>
                     </div>
                     
                     
                     <form method="POST" action="/change_endpoint">
+
+                        <input type="text" id="index" name="index" required style="display: none;">
+
                         <div class="inputContainer inputContainerSpacing">
                             <input type="text" id="new_endpoint" name="new_endpoint" onfocus="updatePlaceHolder('new_endpoint')">
                             <div class="labelContainer labelContainerLong">
