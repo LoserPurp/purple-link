@@ -18,18 +18,22 @@
             {% endif %}
         {% endwith %}
 
-    <div class="project">
+    <div class="project noice">
+        <div class="addUrlContainer">
         <div class="projectContainer">
         <div class="addUrlContainer">
-            <div class="charlesLeclerc">
+            <div class="charlesLeclerc noice">
                 <form method="POST" action="/dashboard" class="addUrlFormContainer">
-                    <div class="h2Text">
+                    <div class="h2Text noice">
                         <h1 class="addUrlHeader">Add URL</h1>
-                        <a onclick="setExpiry()" style="font-size: 12px;text-decoration: underline; cursor: pointer;">Advanced Options</a>
+                        <a onclick="setExpiry()" class="noice" style="font-size: 12px;text-decoration: underline; cursor: pointer;">
+                            <!-- Advanced Options -->
+                            <img class="icons iconAdvanced" src="{{ url_for('static', filename='img/advanced.svg') }}" alt="Advanced Options">
+                        </a>
                         <!-- <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()"> -->
                     </div>
                     <div class="mobileUI">
-                    <div class="enterUrlContainer">
+                    <div class="enterUrlContainer noice">
 
                     <div class="inputContainer inputContainerSpacing">
                         <input type="text" id="url" name="url" onfocus="updatePlaceHolder('url')" style="width: 250px;">
@@ -83,7 +87,7 @@
                         </div>
                     </div>
                     </div>
-                    <div class="buttonUrlContainer" id="buttonUrlContainer">
+                    <div class="buttonUrlContainer" id="buttonUrlContainer" style="bottom: 305px;">
                         <button type="submit">Submit</button>
                     </div>   
                 </form>
@@ -114,10 +118,10 @@
                             <div class="grid-item"><a>{{ redirect }}</a></div>
                             <div class="grid-item">
                                 <div class="urlButtonContainer">
-                                    <img class="iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
-                                    <img class="iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
-                                    <img class="iconEdit" src="{{ url_for('static', filename='img/edit.svg') }}" alt="Edit" onclick="editEndpoint('{{ key }}')">
-                                    <img class="iconRemove" src="{{ url_for('static', filename='img/trashcan.svg') }}" alt="Remove" onclick="removeEndpoint('{{ key }}')">
+                                    <img class="icons iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
+                                    <img class="icons iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
+                                    <img class="icons iconEdit" src="{{ url_for('static', filename='img/edit.svg') }}" alt="Edit" onclick="editEndpoint('{{ key }}')">
+                                    <img class="icons iconRemove" src="{{ url_for('static', filename='img/trashcan.svg') }}" alt="Remove" onclick="removeEndpoint('{{ key }}')">
                                 </div>
                             </div>
                         </div>
@@ -128,10 +132,12 @@
         </div>
 
         <div class="infoBox" id="infoBox" style="display: none;">
-            <div class="boxBox draggable">
+            <div class="boxBox draggable noice">
                 <div class="drag-headerContainer" style="display: flex;flex-direction: row;align-items: center;">
                     <div class="drag-header"></div>
-                    <div id="closeBoxBox" class="boxBoxClose" onclick="closeBoxBox()">╳</div>
+                    <div id="closeBoxBox" class="boxBoxClose" onclick="closeBoxBox()">
+                        <img class="icons iconX" src="{{ url_for('static', filename='img/x.svg') }}" alt="x">
+                    </div>
                 </div>
                 <div id="changeEndpointContainer">
                     <div class="endpointContainer">
@@ -201,13 +207,13 @@
                             </div>
                         </div>
                         
-                        <button type="submit">Submit</button>
+                        <button style="margin-left: 39px;" type="submit">Submit</button>
                     </form>
                 </div>
                 <div id="qrInfo">
-                    <div style="display: flex;flex-direction: row;">
-                    <img id="qrCode" style="height: 170px;">
-                    <div style="display: grid;width: fit-content;grid-template-columns: 80px 1fr;">
+                    <div class="qrContainer">
+                    <img id="qrCode" style="height: 170px; padding-right: 3px;">
+                    <div style="display: grid;width: fit-content;grid-template-columns: 80px 1fr; padding-left: 3px;">
                         <label>Endpoint:</label>
                         <a class="textInQRCode" id="endpointPath"></a>
                         <label>Url:</label>
@@ -220,7 +226,7 @@
                         <p class="textInQRCode" id="endpointUses"></p>
                     </div>   
                     </div>       
-                    <button onclick="downloadQr()"> Download QR Code</button>
+                    <button class="qrDownload" onclick="downloadQr()"> Download QR Code</button>
                 </div>
             </div>
         </div>

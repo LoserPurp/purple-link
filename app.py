@@ -529,6 +529,11 @@ def load_accounts():
 def load_settings():
     return render_template('/settings-pages/settings.html')
 
+@app.route('/settings/licensing')
+@login_required
+def load_licensing():
+    return render_template('/settings-pages/licensing.html')
+
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port="7237")
     # serve(app, host="0.0.0.0", port="7237")

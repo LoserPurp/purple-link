@@ -4,13 +4,31 @@ function closeBoxBox() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    //Info box
     var infoBox = document.getElementById("infoBox");
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
+    var boxBox = document.querySelector(".boxBox");
+    var endpointList = document.getElementById("endpointList");
+    
+    try {
+        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('keydown', handleKeyPress);
+    } catch (error) {}
+    
+    function handleClickOutside(event) {
+        try {
+            if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
                 infoBox.style.display = "none";
             }
-        });
+        } catch (error) {}
+    }
+    
+    function handleKeyPress(event) {
+        try {
+            if (event.key === "Escape" || event.key === "Esc") {
+                infoBox.style.display = "none";
+            }
+        } catch (error) {}
+    }
+    
 
     //Flash message
     try {
