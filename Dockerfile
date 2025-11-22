@@ -37,7 +37,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Create necessary directories and files
-RUN mkdir -p static/img && touch urls.json config.json users.json
+RUN mkdir -p static/img
 
 # Adjust ownership of the app files to the appuser
 RUN chown -R appuser:appuser /app

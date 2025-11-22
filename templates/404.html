@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Endpoint Not Found</title>
+    {% include 'head.html' %}
+    <title>404 Not Found</title>
 </head>
 <body>
-    <p>404 Endpoint Not Found!</p>
+    <div class="redirect-container">
+        <h1 style="font-size: 4rem; color: var(--primary-color);">404</h1>
+        <h2 style="margin-bottom: 1rem;">Page Not Found</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">The link you are looking for does not exist or has expired.</p>
+        <a href="/" class="btn">Go Home</a>
+    </div>
 </body>
 </html>

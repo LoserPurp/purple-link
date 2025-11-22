@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html' %}
+    <title>Purple Link</title>
+</head>
+<body>
+    <div class="landing-container">
+        <nav class="landing-nav">
+            <div class="landing-logo">
+                <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Purple Link" class="nav-logo-img">
+                <span>Purple Link</span>
+            </div>
+            <div class="landing-nav-actions">
+                <a href="/login" class="btn">Sign In</a>
+            </div>
+        </nav>
+
+        <section class="landing-hero">
+            <h1 class="landing-title">Simplify Your Links.<br>Amplify Your Reach.</h1>
+            <p class="landing-subtitle">
+                The powerful, self-hosted URL shortener designed for control, privacy, and analytics. 
+                Manage your endpoints with ease.
+            </p>
+            <div style="display: flex; gap: 1rem;">
+                <a href="/login" class="btn" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Get Started</a>
+                <a href="https://github.com/loserpurp/purple-link" target="_blank" class="btn" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
+                    <i class="fab fa-github" style="margin-right: 0.5rem;"></i> GitHub
+                </a>
+            </div>
+        </section>
+
+        <section class="landing-features">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-link"></i></div>
+                <h3 class="feature-title">Custom Endpoints</h3>
+                <p class="feature-desc">Create memorable short links with custom aliases tailored to your brand or needs.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-moon"></i></div>
+                <h3 class="feature-title">Dark Mode</h3>
+                <p class="feature-desc">A beautiful, eye-strain-free interface. Toggle the switch below to try it out.</p>
+                <div class="theme-toggle-wrapper">
+                    <i class="fas fa-sun" style="color: var(--text-muted);"></i>
+                    <label class="toggle-switch" title="Toggle Dark Mode" style="margin-bottom: 0;">
+                        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-qrcode"></i></div>
+                <h3 class="feature-title">QR Code Generation</h3>
+                <p class="feature-desc">Instantly generate QR codes for any shortened link for easy mobile sharing.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                <h3 class="feature-title">Advanced Analytics</h3>
+                <p class="feature-desc">Track clicks, geographic data, and user agents to understand your audience better.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                <h3 class="feature-title">Password Protection</h3>
+                <p class="feature-desc">Secure your links with passwords to control access to sensitive content.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-stopwatch"></i></div>
+                <h3 class="feature-title">Expiration Dates</h3>
+                <p class="feature-desc">Set temporary links that automatically expire after a specific date or number of uses.</p>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <p>
+                &copy; {{ now.year if now else 2025 }}
+                <a href="https://github.com/loserpurp/purple-link" target="_blank">Purple Link</a>.
+                Open source under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Set initial state based on stored preference
+        if (localStorage.getItem('theme') === 'light') {
+            themeToggle.checked = false;
+        } else {
+            themeToggle.checked = true;
+        }
+
+        function toggleTheme() {
+            if (themeToggle.checked) {
+                // Switch to Dark
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                // Switch to Light
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+    </script>
+</body>
+</html>
+

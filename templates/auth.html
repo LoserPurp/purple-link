@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Input</title>
+    {% include 'head.html' %}
+    <title>Purple Link | Authentication</title>
 </head>
 <body>
-    <form method="post">
-        <input type="hidden" name="path" value="{{ path }}">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password">
-        <button type="submit">Submit</button>
-    </form>
-    {% if error %}
-        <p>{{ error }}</p>
-    {% endif %}
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Protected Link</h1>
+                <p style="color: var(--text-muted);">This link is password protected</p>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-danger" style="margin-bottom: 1.5rem;">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ path }}">
+                <div class="form-group">
+                    <label for="password" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter password to access">
+                </div>
+                <button type="submit" class="btn" style="width: 100%; padding: 0.75rem;">Access Link</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

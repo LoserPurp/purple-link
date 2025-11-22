@@ -1,5 +1,0 @@
-{
-    "admin": {"group":"administrator", "password": "adm"},
-    "robin": {"group":"administrator", "password": "adm"},
-    "olai": {"group":"guest", "password": "1234"}
-}

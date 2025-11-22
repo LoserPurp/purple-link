@@ -1,108 +1,120 @@
-// Function to close the infoBox
+// Modal Logic
 function closeBoxBox() {
-    infoBox.style.display = "none";
+    const infoBox = document.getElementById("infoBox");
+    const qrInfo = document.getElementById("qrInfo");
+    const changeEndpointContainer = document.getElementById("changeEndpointContainer");
+    
+    if (infoBox) infoBox.style.display = "none";
+    if (qrInfo) qrInfo.style.display = "none";
+    if (changeEndpointContainer) changeEndpointContainer.style.display = "block"; // Reset default
 }
 
+// Close modal on outside click or Escape
 document.addEventListener('DOMContentLoaded', () => {
-    var infoBox = document.getElementById("infoBox");
-    var boxBox = document.querySelector(".boxBox");
-    var endpointList = document.getElementById("endpointList");
-    
-    try {
-        document.addEventListener('click', handleClickOutside);
-        document.addEventListener('keydown', handleKeyPress);
-    } catch (error) {}
-    
-    function handleClickOutside(event) {
-        try {
-            if (!boxBox.contains(event.target) && !endpointList.contains(event.target)) {
-                infoBox.style.display = "none";
-            }
-        } catch (error) {}
-    }
-    
-    function handleKeyPress(event) {
-        try {
-            if (event.key === "Escape" || event.key === "Esc") {
-                infoBox.style.display = "none";
-            }
-        } catch (error) {}
-    }
-    
+    // Flash Message Auto-Dismiss
+    const flashMessages = document.querySelectorAll('.alert');
+    flashMessages.forEach(msg => {
+        setTimeout(() => {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 500);
+        }, 3000);
+    });
 
-    //Flash message
-    try {
-        const flashMessage = document.querySelector("body > div.flashMessage");
-        if (flashMessage) {
-            if (flashMessage.style.opacity === '1') {
-                clearTimeout(flashMessage.timeoutId);
+    // Generic Modal Close Logic
+    // This handles closing ANY modal-overlay when clicking outside the content
+    const overlays = document.querySelectorAll('.modal-overlay');
+    overlays.forEach(overlay => {
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                // Special handling for infoBox/BoxBox which has specific close logic
+                if (overlay.id === 'infoBox') {
+                    closeBoxBox();
+                } else {
+                    overlay.style.display = 'none';
+                }
             }
-            flashMessage.style.opacity = '1';
-            flashMessage.timeoutId = setTimeout(() => flashMessage.style.opacity = '0', 3000);
+        });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === "Escape") {
+            closeBoxBox(); // Close main modal
+            // Close other modals
+            document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
         }
-    } catch (error) {}
+    });
 
+    dateFormat();
 });
 
+function showToast(message, type = 'success') {
+    // Remove existing toasts to avoid stacking too many
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(t => t.remove());
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    // Trigger reflow
+    void toast.offsetWidth;
+
+    // Show
+    toast.classList.add('show');
+
+    // Hide after 3s
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 function downloadQr() {
-    var image = document.getElementById("qrCode");
-    var downloadLink = document.createElement("a");
+    const image = document.getElementById("qrCode");
+    const downloadLink = document.createElement("a");
     downloadLink.href = image.src;
     downloadLink.download = "qrcode.jpg";
     downloadLink.click();
+    showToast("QR Code downloaded!");
 }
 
-function showPassword(){
-    var passwordContainer = document.querySelector("#changeEndpointContainer > form > div.passwordContainerSidebySide");
+function showPassword() {
+    const passwordContainer = document.querySelector(".passwordContainerSidebySide");
     passwordContainer.style.display = "flex";
-    var buttonUrlContainer = document.querySelector("#showPasswordButton");
-    buttonUrlContainer.style.display = "none";
+    const buttonContainer = document.getElementById("showPasswordButton");
+    buttonContainer.style.display = "none";
 }
 
-window.onload = function() {
-    var links = document.querySelectorAll('a.urlEndpoint');
-    var maxWidth = 0;
+function dateFormat() {
+    const dateFormatStr = "HH:mm DD.MM.YYYY".replace(/\./g, "/");
+    // Selector for the date column in the new grid layout
+    // #endpointList .url-row > div:nth-child(4) > a
+    const dateElements = document.querySelectorAll("#endpointList .url-row > div:nth-child(4) > a");
 
-    links.forEach(function(link) {
-        var linkWidth = link.offsetWidth;
-        if (linkWidth > maxWidth && linkWidth <= 120) {
-            maxWidth = linkWidth;
-        } else if (linkWidth > 120) {
-            maxWidth = 120; // Set maxWidth to 120 if the link width exceeds 120 pixels
-        }
+    dateElements.forEach(dateElement => {
+        let dateText = dateElement.textContent.trim();
+        if (dateText.toLowerCase() === "never") return;
+        if (!dateText) return;
+
+        // Check if already formatted or valid ISO
+        // The backend sends YYYY-MM-DD HH:MM (from convert_time_format)
+        // We want HH:mm DD/MM/YYYY
+        
+        let [datePart, timePart] = dateText.split(' ');
+        if (!datePart || !timePart) return;
+
+        let originalDate = new Date(datePart + 'T' + timePart);
+        if (isNaN(originalDate.getTime())) return;
+
+        let formattedDate = dateFormatStr
+            .replace("DD", originalDate.getDate().toString().padStart(2, '0'))
+            .replace("MM", (originalDate.getMonth() + 1).toString().padStart(2, '0'))
+            .replace("YYYY", originalDate.getFullYear())
+            .replace("HH", originalDate.getHours().toString().padStart(2, '0'))
+            .replace("mm", originalDate.getMinutes().toString().padStart(2, '0'));
+
+        dateElement.textContent = formattedDate;
     });
-
-    // Add 10 extra pixels to the maxWidth if it's less than or equal to 110 pixels
-    if (maxWidth <= 110) {
-        maxWidth += 15;
-    }
-
-    links.forEach(function(link) {
-        link.style.minWidth = maxWidth + 'px';
-        link.style.maxWidth = maxWidth + 'px'; // Set max-width same as min-width
-    });
-
-    function dateFormat() {
-        const dateFormat = "HH:mm DD.MM.YYYY".replace(/\./g, "/");
-        const dateElements = document.querySelectorAll("#endpointList > div > div > div:nth-child(3) > a");
-
-        dateElements.forEach(dateElement => {
-            let dateText = dateElement.textContent.trim();
-            if (dateText.toLowerCase() === "never") return;
-
-            let [datePart, timePart] = dateText.split(' ');
-            let originalDate = new Date(datePart + 'T' + timePart);
-
-            let formattedDate = dateFormat
-                .replace("DD", originalDate.getDate().toString().padStart(2, '0'))
-                .replace("MM", (originalDate.getMonth() + 1).toString().padStart(2, '0'))
-                .replace("YYYY", originalDate.getFullYear())
-                .replace("HH", originalDate.getHours().toString().padStart(2, '0'))
-                .replace("mm", originalDate.getMinutes().toString().padStart(2, '0'));
-
-            dateElement.textContent = formattedDate;
-        });
-    }
-    dateFormat();
-
-};
+}

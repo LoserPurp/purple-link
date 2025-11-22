@@ -1,129 +1,143 @@
-import json
+import sqlite3
 
+DB_NAME = 'data.db'
 
-#find the url in the list file from the given endpoint
+def get_db():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def find_endpoint(endpoint_path):
-    with open('urls.json', 'r') as file:
-        list = json.load(file)
-    for value in list.values():
-        if value['endpoint'] == endpoint_path:
-            return value['url']
-    return None
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT url FROM urls WHERE endpoint = ?", (endpoint_path,)).fetchone()
+        return row['url'] if row else None
+    finally:
+        conn.close()
 
-
-#finds endpoint password in the list file from the given endpoint
 def find_endpoint_pass(endpoint_path):
-    with open('urls.json', 'r') as file:
-        list = json.load(file)
+    conn = get_db()
     try:
-        for value in list.values():
-            if value['endpoint'] == endpoint_path:
-                if value['pass']:
-                    return value['pass']
-    except:
+        row = conn.execute("SELECT password FROM urls WHERE endpoint = ?", (endpoint_path,)).fetchone()
+        if row and row['password']:
+            return row['password']
         return False
+    finally:
+        conn.close()
 
-
-#find the max amount of uses for given endpoint
 def find_endpoint_uses(endpoint_path):
-    with open('urls.json', 'r') as file:
-        list = json.load(file)
+    conn = get_db()
     try:
-        for value in list.values():
-            if value['endpoint'] == endpoint_path:
-                if value['uses']:
-                    return int(value['uses'])
-    except:
+        row = conn.execute("SELECT uses FROM urls WHERE endpoint = ?", (endpoint_path,)).fetchone()
+        if row:
+            return int(row['uses'])
         return False
+    finally:
+        conn.close()
 
-#find the max amount of uses for given endpoint
 def redirect(endpoint_path):
-    with open('urls.json', 'r') as file:
-        list = json.load(file)
+    conn = get_db()
     try:
-        for value in list.values():
-            if value['endpoint'] == endpoint_path:
-                return value['redirect']
-    except:
+        row = conn.execute("SELECT redirect FROM urls WHERE endpoint = ?", (endpoint_path,)).fetchone()
+        if row:
+            return bool(row['redirect'])
         return False
+    finally:
+        conn.close()
 
-
-#load existing data
 def load_data():
+    conn = get_db()
     try:
-        with open("urls.json", "r") as file:
-            data = json.load(file)
-    except FileNotFoundError:
+        rows = conn.execute("SELECT * FROM urls").fetchall()
         data = {}
-    return data
+        for row in rows:
+            data[str(row['id'])] = {
+                "endpoint": row['endpoint'],
+                "url": row['url'],
+                "expiry": row['expiry'],
+                "pass": row['password'],
+                "redirect": bool(row['redirect']),
+                "uses": row['uses']
+            }
+        return data
+    finally:
+        conn.close()
 
+def add_url(endpoint, url, expiry, password, redirect, uses):
+    conn = get_db()
+    try:
+        conn.execute("INSERT INTO urls (endpoint, url, expiry, password, redirect, uses) VALUES (?, ?, ?, ?, ?, ?)",
+                     (endpoint, url, expiry, password, 1 if redirect else 0, uses))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+    except Exception as e:
+        print(f"Error adding URL: {e}")
+        return False
+    finally:
+        conn.close()
 
-#save data to json
+# Deprecated but kept for compatibility if needed, though we should remove usage
 def save_data(data):
-    with open("urls.json", "w") as file:
-        json.dump(data, file, indent=4)
-
-
-# changes the random endpoint to a selected
-# def change_endpoint(index, endpoint):
-#     with open('urls.json', 'r') as file:
-#         data = json.load(file)
-#         if str(index) in data:
-#             data[str(index)]['endpoint'] = endpoint
-#             with open('urls.json', 'w') as file:
-#                 json.dump(data, file, indent=4)
-#             return True
-#         return False
-
+    pass
 
 def change_endpoint(index, entry):
-    with open('urls.json', 'r') as file:
-        data = json.load(file)
-        if str(index) in data:
-            data[str(index)] = entry
-            with open('urls.json', 'w') as file:
-                json.dump(data, file, indent=4)
-            return True
+    conn = get_db()
+    try:
+        conn.execute("UPDATE urls SET endpoint = ?, url = ?, expiry = ?, password = ?, redirect = ?, uses = ? WHERE id = ?",
+                     (entry['endpoint'], entry['url'], entry['expiry'], entry['pass'], 1 if entry['redirect'] else 0, entry['uses'], index))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating endpoint: {e}")
         return False
-
+    finally:
+        conn.close()
 
 def change_uses(index, uses):
-    with open('urls.json', 'r') as file:
-        data = json.load(file)
-        if str(index) in data:
-            data[str(index)]['uses'] = uses
-            with open('urls.json', 'w') as file:
-                json.dump(data, file, indent=4)
-            return True
+    conn = get_db()
+    try:
+        conn.execute("UPDATE urls SET uses = ? WHERE id = ?", (uses, index))
+        conn.commit()
+        return True
+    except:
         return False
+    finally:
+        conn.close()
 
-
-#removes selceted endpoint from json file
 def remove_endpoint(index):
-    with open('urls.json', 'r') as file:
-        data = json.load(file)
-        if str(index) in data:
-            del data[str(index)]
-            with open('urls.json', 'w') as file:
-                json.dump(data, file, indent=4)
-            return True
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM urls WHERE id = ?", (index,))
+        conn.commit()
+        return True
+    except:
         return False
+    finally:
+        conn.close()
 
 def find_key_by_endpoint(endpoint):
-    with open('urls.json', 'r') as file:
-        data = json.load(file)
-    for key, value in data.items():
-        if value.get('endpoint') == endpoint:
-            return key
-    return None
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT id FROM urls WHERE endpoint = ?", (endpoint,)).fetchone()
+        return str(row['id']) if row else None
+    finally:
+        conn.close()
 
 def load_data_from_endpoint(endpoint):
-    with open('urls.json', 'r') as file:
-        data = json.load(file)
-
-    matching_entries = []
-    for key, value in data.items():
-        if value['endpoint'] == endpoint:
-            matching_entries.append(value)
-
-    return matching_entries
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT * FROM urls WHERE endpoint = ?", (endpoint,)).fetchone()
+        if row:
+            return [{
+                "endpoint": row['endpoint'],
+                "url": row['url'],
+                "expiry": row['expiry'],
+                "pass": row['password'],
+                "redirect": bool(row['redirect']),
+                "uses": row['uses']
+            }]
+        return []
+    finally:
+        conn.close()

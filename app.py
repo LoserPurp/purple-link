@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 import fetchUrl
-import json
 import os
 import random
 import string
@@ -18,58 +17,14 @@ import io
 import base64
 import validators
 from PIL import Image
-import requests  # Add this import at the top
+import requests
+import sqlite3
+from user_agents import parse
 
 app = Flask(__name__)
 app.secret_key = 'key69'
 
-# Basic configuration for in-memory caching
-app.config['CACHE_TYPE'] = 'SimpleCache'  # Choose a caching backend
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Default timeout in seconds
-
-cache = Cache(app)
-
-# Check if urls.json exists
-url_check = 'urls.json'
-
-# Get the absolute path of the current script directory
-script_directory = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_directory, url_check)
-# Check if the file exists
-if not os.path.isfile(file_path):
-    with open(file_path, 'w') as file:
-        json.dump({}, file) 
-
-# Log user access
-def log_user_access(endpoint, user_agent):
-    try:
-        ip_address = requests.get('https://ip.olayzen.net').text.strip()
-    except requests.RequestException:
-        ip_address = 'Unknown'  # Fallback if the request fails
-
-    log_entry = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - IP: {ip_address} - Endpoint: {endpoint} - User Agent: {user_agent}\n"
-    log_file_path = os.path.join(script_directory, "access.log")  # Change to .log file
-
-    # Append log entry to the log file
-    with open(log_file_path, 'a') as log_file:
-        log_file.write(log_entry)
-
-#makes random string
-def generate_random_string():
-    while True:
-        rndm = ''.join(random.choices(string.ascii_letters, k=5))
-        if not fetchUrl.find_endpoint(rndm):
-            return rndm
-
-try:
-    file_path = os.path.join(script_directory, "config.json")
-    with open("config.json", "r") as file:
-        conf = json.load(file)
-except:
-    print("config file not found")
-    exit(1)
-
-def hash(passphrase, salt="salt123!".encode(), iterations=100000):
+def hash(passphrase, salt, iterations=100000):
     passphrase_bytes = passphrase.encode('utf-8')
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -80,6 +35,147 @@ def hash(passphrase, salt="salt123!".encode(), iterations=100000):
     derived_key = kdf.derive(passphrase_bytes)
 
     return base64.urlsafe_b64encode(derived_key).decode('utf-8')
+
+# Basic configuration for in-memory caching
+app.config['CACHE_TYPE'] = 'SimpleCache'  # Choose a caching backend
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Default timeout in seconds
+
+cache = Cache(app)
+
+# Database initialization
+def check_and_migrate_db():
+    try:
+        conn = sqlite3.connect('data.db')
+        c = conn.cursor()
+        
+        # Get current columns
+        c.execute("PRAGMA table_info(users)")
+        columns = [info[1] for info in c.fetchall()]
+        
+        new_columns = {
+            'perm_create': 'INTEGER DEFAULT 1',
+            'perm_custom_alias': 'INTEGER DEFAULT 0',
+            'perm_expiry': 'INTEGER DEFAULT 0',
+            'perm_uses': 'INTEGER DEFAULT 0',
+            'perm_password': 'INTEGER DEFAULT 0',
+            'perm_redirect': 'INTEGER DEFAULT 0'
+        }
+        
+        for col, dtype in new_columns.items():
+            if col not in columns:
+                print(f"Migrating: Adding {col} to users table")
+                c.execute(f"ALTER TABLE users ADD COLUMN {col} {dtype}")
+                
+                # Set defaults: Admins get everything, Users get nothing (except create which is default 1)
+                # Wait, perm_create default is 1.
+                c.execute(f"UPDATE users SET {col} = 1 WHERE user_group = 'administrator'")
+                
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Migration error: {e}")
+
+def init_db():
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  username TEXT UNIQUE NOT NULL,
+                  password_hash TEXT NOT NULL,
+                  salt TEXT NOT NULL,
+                  user_group TEXT NOT NULL,
+                  perm_create INTEGER DEFAULT 1,
+                  perm_custom_alias INTEGER DEFAULT 0,
+                  perm_expiry INTEGER DEFAULT 0,
+                  perm_uses INTEGER DEFAULT 0,
+                  perm_password INTEGER DEFAULT 0,
+                  perm_redirect INTEGER DEFAULT 0)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS urls
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  endpoint TEXT UNIQUE NOT NULL,
+                  url TEXT NOT NULL,
+                  expiry TEXT,
+                  password TEXT,
+                  redirect INTEGER,
+                  uses INTEGER)''')
+    conn.commit()
+    conn.close()
+    check_and_migrate_db()
+
+def add_default_user():
+    try:
+        conn = sqlite3.connect('data.db')
+        c = conn.cursor()
+        
+        # Check if any user exists
+        c.execute("SELECT count(*) FROM users")
+        count = c.fetchone()[0]
+        
+        if count == 0:
+            print("No users found. Creating default admin user.")
+            username = "admin"
+            password = "admin"
+            group = "administrator"
+            
+            # Generate random salt (16 bytes)
+            salt = os.urandom(16)
+            password_hash = hash(password, salt)
+            
+            # Store salt as base64 string
+            salt_b64 = base64.urlsafe_b64encode(salt).decode('utf-8')
+            
+            c.execute("INSERT INTO users (username, password_hash, salt, user_group, perm_create, perm_custom_alias, perm_expiry, perm_uses, perm_password, perm_redirect) VALUES (?, ?, ?, ?, 1, 1, 1, 1, 1, 1)",
+                      (username, password_hash, salt_b64, group))
+            conn.commit()
+            print("Default admin user created.")
+            
+        conn.close()
+    except Exception as e:
+        print(f"Error creating default user: {e}")
+
+# Initialize DB
+init_db()
+# Add default user if needed
+add_default_user()
+
+# Get the absolute path of the current script directory
+script_directory = os.path.dirname(os.path.abspath(__file__)) 
+
+# Log user access
+def log_user_access(endpoint, user_agent):
+    try:
+        ip_address = requests.get('https://ip.olayzen.net').text.strip()
+    except requests.RequestException:
+        ip_address = 'Unknown'  # Fallback if the request fails
+
+    # Parse user agent to get device type
+    ua = parse(user_agent)
+    if ua.is_mobile:
+        device_type = 'Mobile'
+    elif ua.is_tablet:
+        device_type = 'Tablet'
+    elif ua.is_pc:
+        device_type = 'PC'
+    elif ua.is_bot:
+        device_type = 'Bot'
+    else:
+        device_type = 'Other'
+
+    log_entry = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - IP: {ip_address} - Endpoint: {endpoint} - User Agent: {user_agent} - Device: {device_type}\n"
+    log_file_path = os.path.join(script_directory, "access.log")  # Change to .log file
+
+    # Append log entry to the log file
+    with open(log_file_path, 'a') as log_file:
+        log_file.write(log_entry)
+
+#makes random string
+def generate_random_string():
+    while True:
+        rndm = ''.join(random.choices(string.ascii_letters, k=5))
+        if not fetchUrl.find_endpoint("/" + rndm):
+            return rndm
+
 
 def login_required(f):
     @wraps(f)
@@ -125,26 +221,74 @@ def convert_time_format(time_str):
 def not_found():
     return render_template('404.html'), 404
 
+def get_user_permissions(username):
+    try:
+        conn = sqlite3.connect('data.db')
+        c = conn.cursor()
+        c.execute("SELECT perm_create, perm_custom_alias, perm_expiry, perm_uses, perm_password, perm_redirect FROM users WHERE username=?", (username,))
+        row = c.fetchone()
+        conn.close()
+        if row:
+            return {
+                'create': row[0],
+                'custom_alias': row[1],
+                'expiry': row[2],
+                'uses': row[3],
+                'password': row[4],
+                'redirect': row[5]
+            }
+    except:
+        pass
+    return {}
+
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def index():
     check_time()
+    
+    # Get up-to-date permissions
+    perms = get_user_permissions(session['username'])
 
     if request.method == "POST":
+        # Check permissions
+        # perms = session.get('permissions', {}) # Use DB instead
+        if not perms.get('create', 0):
+            flash('You do not have permission to create short links.', 'error')
+            return redirect('/')
+
         #get parameters from the form
         url = request.form.get("url")
         expire = request.form.get("expire")
         password = request.form.get("pass")
         endpoint = request.form.get("path")
 
+        # Permission checks
+        if endpoint and not perms.get('custom_alias', 0):
+            flash('You do not have permission to use custom aliases.', 'error')
+            return redirect('/')
+        
+        if expire and not perms.get('expiry', 0):
+            flash('You do not have permission to set expiry dates.', 'error')
+            return redirect('/')
+            
+        if password and not perms.get('password', 0):
+            flash('You do not have permission to password protect links.', 'error')
+            return redirect('/')
+
         if request.form.get("maxUses"):
+            if not perms.get('uses', 0):
+                flash('You do not have permission to set max uses.', 'error')
+                return redirect('/')
             uses = int(request.form.get("maxUses"))
         else:
             uses = -1
         
         try:
             if request.form['redirect']:
-                redirecting = True
+                if not perms.get('redirect', 0):
+                    redirecting = False
+                else:
+                    redirecting = True
         except:
                 redirecting = False
 
@@ -160,29 +304,13 @@ def index():
                 # Get a random string if no custom endpoint was provided
                 random_string = generate_random_string()
 
-            #load existing data
-            data = fetchUrl.load_data()
-
-            #checks if a key already exists before making a new one
-            i = 1
-            while True:
-                if str(i) not in data.keys():
-                    break
-                else:
-                    i += 1
-
             if expire:
                 # expire_time = expire
                 expire_time = convert_time_format(expire)
-                #add random string, URL and expiration date to data
-                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": expire_time, "pass": password, "redirect": redirecting, "uses": uses}
             else:
-                
-                #add random string and URL to data
-                data[i] = {f"endpoint": "/"+random_string,"url": url,"expiry": "", "pass": password, "redirect": redirecting, "uses": uses}
-
-            #save updated data
-            fetchUrl.save_data(data)
+                expire_time = ""
+            
+            fetchUrl.add_url("/"+random_string, url, expire_time, password, redirecting, uses)
 
             #redirect to the index page
             return redirect('/')
@@ -204,7 +332,7 @@ def index():
             ) 
                 for k, v in data.items()
         ]
-        return render_template("index.html", entries=entries)
+        return render_template("index.html", entries=entries, permissions=perms)
 
 @app.route("/qr", methods=["POST"])
 @login_required
@@ -265,6 +393,9 @@ def make_qr():
 @login_required
 def change_endpoint():
     if request.method == 'POST':
+        # Check permissions
+        perms = get_user_permissions(session['username'])
+        
         index = request.form['index']
 
         endpoint = request.form['new_endpoint']
@@ -277,27 +408,45 @@ def change_endpoint():
 
         try:
             if request.form['new_redirect']:
-                redirecting = True
+                if not perms.get('redirect', 0):
+                    redirecting = False
+                else:
+                    redirecting = True
         except:
                 redirecting = False
 
         check = fetchUrl.load_data()
+        
+        # Validate custom endpoint permission
+        if endpoint and endpoint != check[index]["endpoint"] and not perms.get('custom_alias', 0):
+             # If user tries to change endpoint without permission
+             endpoint = check[index]["endpoint"] # Revert to old
 
         if not new_password:
             new_password = check[index]["pass"]
         elif old_password and new_password:
-            old_password == check[index]["pass"]
+            # Check password permission
+            if not perms.get('password', 0):
+                new_password = check[index]["pass"] # Revert
+            else:
+                old_password == check[index]["pass"]
         
         if expiry:
-            expiry = convert_time_format(expiry)
-
+            if not perms.get('expiry', 0):
+                expiry = check[index]["expiry"] # Revert
+            else:
+                expiry = convert_time_format(expiry)
+        
         #formats endpoint if user has not already done so
         if endpoint:
             if not endpoint.startswith('/'):
                 endpoint = '/'+ endpoint
         try:
             if int(uses):
-                uses = int(uses)
+                if not perms.get('uses', 0):
+                     uses = check[index]["uses"] # Revert
+                else:
+                    uses = int(uses)
         except ValueError:
             uses = -1
 
@@ -335,8 +484,8 @@ def remove_endpoint():
 def endpoint_details():
     if request.method == 'POST':
         index = request.form['index']
-        with open("urls.json", "r") as file:
-            data = json.load(file)
+        data = fetchUrl.load_data()
+        if index in data:
             data = data[index]
             if data["redirect"]:
                 data["redirect"] = 'on'
@@ -344,6 +493,7 @@ def endpoint_details():
                 data["redirect"] = 'off'
             print(data)
             return data
+        return {}
     else:
         pass
 
@@ -406,39 +556,49 @@ def redirect_page():
 def home():
     if 'username' in session:
         return redirect(url_for('index'))
-    return render_template('login.html')
+    return render_template('landing.html')
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'GET':
+        if 'username' in session:
+            return redirect(url_for('index'))
+        return render_template('login.html')
+    
     username = request.form['username']
     password = request.form['password']
 
     try:
-        with open("users.json", "r") as file:
-            users = json.load(file)
-    except:
-        print("users file not found")
-        exit(1)
+        conn = sqlite3.connect('data.db')
+        c = conn.cursor()
+        c.execute("SELECT password_hash, salt, user_group, perm_create, perm_custom_alias, perm_expiry, perm_uses, perm_password, perm_redirect FROM users WHERE username=?", (username,))
+        user = c.fetchone()
+        conn.close()
 
-    # Check if user exists and password is correct
-    if username in users and users[username]["password"] == password:
-        session['username'] = username
-        session['group'] = users[username]["group"]
-        return redirect(url_for('index'))
-    else:
-        flash('Invalid username or password. Please try again.')
-        return render_template('login.html')
+        if user:
+            stored_hash = user[0]
+            salt = base64.urlsafe_b64decode(user[1])
+            group = user[2]
 
-@app.route('/settings', methods=['GET', 'POST'])
-def settings():
-    if 'username' in session:
-        if request.method == 'POST':
-            theme = request.form['theme']
-            session['theme'] = theme
-            return redirect(url_for('settings'))
-        current_theme = session.get('theme', 'automatic')
-        return render_template('settings.html', current_theme=current_theme)
-    return redirect(url_for('login'))
+            if hash(password, salt) == stored_hash:
+                session['username'] = username
+                session['group'] = group
+                session['permissions'] = {
+                    'create': user[3],
+                    'custom_alias': user[4],
+                    'expiry': user[5],
+                    'uses': user[6],
+                    'password': user[7],
+                    'redirect': user[8]
+                }
+                return redirect(url_for('index'))
+            
+    except Exception as e:
+        print(f"Database error: {e}")
+
+    flash('Invalid username or password. Please try again.')
+    return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
@@ -462,23 +622,143 @@ def admin_panel():
         flash('You need to log in first.')
         return redirect(url_for('index'))  # Redirect to the home page if not logged in
 
-@app.route('/admin/data')
+# @app.route('/debug/add-user', methods=['GET', 'POST'])
+# @login_required
+# def debug_add_user():
+#     if request.method == 'POST':
+#         username = request.form.get('username')
+#         password = request.form.get('password')
+#         group = request.form.get('group')
+#
+#         if not username or not password or not group:
+#             flash('All fields are required', 'danger')
+#             return render_template('debug_add_user.html')
+#
+#         try:
+#             conn = sqlite3.connect('data.db')
+#             c = conn.cursor()
+#             
+#             # Check if user exists
+#             c.execute("SELECT * FROM users WHERE username=?", (username,))
+#             if c.fetchone():
+#                 flash(f'User {username} already exists', 'danger')
+#                 conn.close()
+#                 return render_template('debug_add_user.html')
+#
+#             # Generate random salt (16 bytes)
+#             salt = os.urandom(16)
+#             password_hash = hash(password, salt)
+#             
+#             # Store salt as base64 string
+#             salt_b64 = base64.urlsafe_b64encode(salt).decode('utf-8')
+#             
+#             c.execute("INSERT INTO users (username, password_hash, salt, user_group) VALUES (?, ?, ?, ?)",
+#                       (username, password_hash, salt_b64, group))
+#             conn.commit()
+#             conn.close()
+#             
+#             flash(f'User {username} added successfully', 'success')
+#             return render_template('debug_add_user.html')
+#
+#         except Exception as e:
+#             flash(f'Error adding user: {e}', 'danger')
+#             return render_template('debug_add_user.html')
+#
+#     return render_template('debug_add_user.html')
+
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
-def admin_data():
+def settings():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if not current_password or not new_password or not confirm_password:
+            flash('All fields are required.', 'error')
+            return redirect(url_for('index') + '#settings')
+            
+        if new_password != confirm_password:
+            flash('New passwords do not match.', 'error')
+            return redirect(url_for('index') + '#settings')
+            
+        username = session['username']
+        
+        try:
+            conn = sqlite3.connect('data.db')
+            c = conn.cursor()
+            
+            # Verify current password
+            c.execute("SELECT password_hash, salt FROM users WHERE username=?", (username,))
+            user = c.fetchone()
+            
+            if user:
+                stored_hash = user[0]
+                salt = base64.urlsafe_b64decode(user[1])
+                
+                if hash(current_password, salt) == stored_hash:
+                    # Generate new salt and hash
+                    new_salt = os.urandom(16)
+                    new_hash = hash(new_password, new_salt)
+                    new_salt_b64 = base64.urlsafe_b64encode(new_salt).decode('utf-8')
+                    
+                    # Update password
+                    c.execute("UPDATE users SET password_hash=?, salt=? WHERE username=?", 
+                             (new_hash, new_salt_b64, username))
+                    conn.commit()
+                    flash('Password updated successfully.', 'success')
+                else:
+                    flash('Incorrect current password.', 'error')
+            else:
+                flash('User not found.', 'error')
+                 
+            conn.close()
+            
+        except Exception as e:
+            flash(f'Error updating password: {e}', 'error')
+            
+        return redirect(url_for('index') + '#settings')
+
+    # If GET request, redirect to dashboard with settings view
+    return redirect(url_for('index') + '#settings')
+
+
+@app.route('/api/analytics')
+@login_required
+def analytics_data():
     # Load access log data
     log_file_path = os.path.join(script_directory, "access.log")
+    if not os.path.exists(log_file_path):
+        return jsonify({
+            'mostUsedIPs': [],
+            'mostUsedUserAgents': [],
+            'requests': [],
+            'chartLabels': [],
+            'chartData': []
+        })
+
     with open(log_file_path, 'r') as log_file:
         logs = log_file.readlines()
 
     ip_count = {}
     user_agent_count = {}
-    requests = []
+    device_count = {}
+    requests_list = []
 
     for log in logs:
         parts = log.split(' - ')
         if len(parts) >= 4:
-            timestamp, ip, endpoint, user_agent = parts[0], parts[1], parts[2], parts[3].strip()
-            requests.append({'timestamp': timestamp, 'ip': ip, 'agent': user_agent})
+            # Support both old format (4 parts) and new format (5 parts with device type)
+            timestamp = parts[0]
+            ip = parts[1].replace('IP: ', '')
+            endpoint = parts[2].replace('Endpoint: ', '')
+            user_agent = parts[3].replace('User Agent: ', '').strip()
+            
+            device_type = 'Unknown'
+            if len(parts) >= 5:
+                device_type = parts[4].replace('Device: ', '').strip()
+            
+            requests_list.append({'timestamp': timestamp, 'ip': ip, 'agent': user_agent, 'endpoint': endpoint, 'device': device_type})
 
             if ip in ip_count:
                 ip_count[ip] += 1
@@ -489,50 +769,200 @@ def admin_data():
                 user_agent_count[user_agent] += 1
             else:
                 user_agent_count[user_agent] = 1
+                
+            if device_type in device_count:
+                device_count[device_type] += 1
+            else:
+                device_count[device_type] = 1
 
     # Sort and get the most used IPs and User Agents
     most_used_ips = sorted(ip_count.items(), key=lambda x: x[1], reverse=True)[:5]
     most_used_user_agents = sorted(user_agent_count.items(), key=lambda x: x[1], reverse=True)[:5]
+    
+    # Prepare device chart data
+    device_labels = list(device_count.keys())
+    device_values = list(device_count.values())
 
-    # Prepare data for the chart
+    # Prepare data for the chart (requests per day/hour could be better, but let's stick to simple endpoint counts for now or agent based on previous code)
+    # The previous code charted 'agent' which seems odd, let's chart 'endpoint' usage.
     chart_data = {}
-    for request in requests:
-        endpoint = request['agent']  # Change this to the correct key if needed
-        if endpoint in chart_data:
-            chart_data[endpoint] += 1
+    for req in requests_list:
+        ep = req['endpoint']
+        # Filter only for shortlink endpoints (starting with /) and excluding admin/static paths if possible
+        # For now, just count all.
+        if ep in chart_data:
+            chart_data[ep] += 1
         else:
-            chart_data[endpoint] = 1
+            chart_data[ep] = 1
 
-    chart_labels = list(chart_data.keys())
-    chart_values = list(chart_data.values())
+    # Sort chart data by usage
+    chart_data_sorted = dict(sorted(chart_data.items(), key=lambda item: item[1], reverse=True)[:10])
+
+    chart_labels = list(chart_data_sorted.keys())
+    chart_values = list(chart_data_sorted.values())
 
     return jsonify({
         'mostUsedIPs': [{'address': ip, 'count': count} for ip, count in most_used_ips],
         'mostUsedUserAgents': [{'agent': agent, 'count': count} for agent, count in most_used_user_agents],
-        'requests': requests,
+        'requests': requests_list[-100:], # Return last 100 requests for the table
         'chartLabels': chart_labels,
-        'chartData': chart_values
+        'chartData': chart_values,
+        'deviceLabels': device_labels,
+        'deviceData': device_values
     })
 
-@app.route('/settings/users')
+@app.route('/api/users', methods=['GET', 'POST'])
 @login_required
-def load_users():
-    return render_template('/settings-pages/users.html')
+def manage_users():
+    if session.get('group') != 'administrator':
+        return jsonify({'error': 'Unauthorized'}), 403
 
-@app.route('/settings/account')
-@login_required
-def load_accounts():
-    return render_template('/settings-pages/account.html')
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
 
-@app.route('/settings/settings')
-@login_required
-def load_settings():
-    return render_template('/settings-pages/settings.html')
+    if request.method == 'GET':
+        c.execute("SELECT id, username, user_group, perm_create, perm_custom_alias, perm_expiry, perm_uses, perm_password, perm_redirect FROM users")
+        users = [dict(row) for row in c.fetchall()]
+        conn.close()
+        return jsonify(users)
 
-@app.route('/settings/licensing')
+    if request.method == 'POST':
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        group = data.get('group', 'user')
+        
+        # Permissions
+        perms = data.get('permissions', {})
+        # Default: Users get only create, Admins get all (handled by UI but good to have defaults)
+        # If group is administrator, we might want to force all true?
+        # The user said "allow the administrator to set each permission", so we trust the payload.
+        
+        p_create = 1 if perms.get('create') else 0
+        p_custom = 1 if perms.get('custom_alias') else 0
+        p_expiry = 1 if perms.get('expiry') else 0
+        p_uses = 1 if perms.get('uses') else 0
+        p_password = 1 if perms.get('password') else 0
+        p_redirect = 1 if perms.get('redirect') else 0
+
+        if not username or not password:
+            conn.close()
+            return jsonify({'error': 'Username and password required'}), 400
+
+        # Check if exists
+        c.execute("SELECT id FROM users WHERE username=?", (username,))
+        if c.fetchone():
+            conn.close()
+            return jsonify({'error': 'User already exists'}), 409
+
+        # Hash password
+        salt = os.urandom(16)
+        password_hash = hash(password, salt)
+        salt_b64 = base64.urlsafe_b64encode(salt).decode('utf-8')
+
+        try:
+            c.execute('''INSERT INTO users 
+                         (username, password_hash, salt, user_group, 
+                          perm_create, perm_custom_alias, perm_expiry, perm_uses, perm_password, perm_redirect) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                      (username, password_hash, salt_b64, group, 
+                       p_create, p_custom, p_expiry, p_uses, p_password, p_redirect))
+            conn.commit()
+            conn.close()
+            return jsonify({'success': True})
+        except Exception as e:
+            conn.close()
+            return jsonify({'error': str(e)}), 500
+            
+    conn.close()
+    return jsonify({'error': 'Method not allowed'}), 405
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE', 'PUT'])
 @login_required
-def load_licensing():
-    return render_template('/settings-pages/licensing.html')
+def user_operations(user_id):
+    if session.get('group') != 'administrator':
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    conn = sqlite3.connect('data.db')
+    c = conn.cursor()
+
+    if request.method == 'DELETE':
+        # Prevent deleting yourself
+        c.execute("SELECT username FROM users WHERE id=?", (user_id,))
+        row = c.fetchone()
+        
+        if not row:
+             conn.close()
+             return jsonify({'error': 'User not found'}), 404
+             
+        if row[0] == session['username']:
+            conn.close()
+            return jsonify({'error': 'Cannot delete yourself'}), 400
+
+        c.execute("DELETE FROM users WHERE id=?", (user_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+
+    if request.method == 'PUT':
+        data = request.get_json()
+        password = data.get('password')
+        group = data.get('group')
+        perms = data.get('permissions')
+
+        updates = []
+        params = []
+
+        if password:
+             salt = os.urandom(16)
+             password_hash = hash(password, salt)
+             salt_b64 = base64.urlsafe_b64encode(salt).decode('utf-8')
+             updates.append("password_hash=?")
+             updates.append("salt=?")
+             params.append(password_hash)
+             params.append(salt_b64)
+        
+        if group:
+            updates.append("user_group=?")
+            params.append(group)
+
+        if perms:
+            # Map frontend permission names to DB columns
+            perm_map = {
+                'create': 'perm_create',
+                'custom_alias': 'perm_custom_alias',
+                'expiry': 'perm_expiry',
+                'uses': 'perm_uses',
+                'password': 'perm_password',
+                'redirect': 'perm_redirect'
+            }
+            
+            for key, db_col in perm_map.items():
+                if key in perms:
+                    updates.append(f"{db_col}=?")
+                    params.append(1 if perms[key] else 0)
+
+        if not updates:
+            conn.close()
+            return jsonify({'success': True}) # Nothing to update
+
+        query = f"UPDATE users SET {', '.join(updates)} WHERE id=?"
+        params.append(user_id)
+        
+        try:
+            c.execute(query, tuple(params))
+            conn.commit()
+            conn.close()
+            return jsonify({'success': True})
+        except Exception as e:
+            conn.close()
+            return jsonify({'error': str(e)}), 500
+            
+    conn.close()
+    return jsonify({'error': 'Method not allowed'}), 405
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port="7237")

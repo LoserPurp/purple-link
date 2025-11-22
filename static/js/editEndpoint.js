@@ -1,51 +1,93 @@
 function editEndpoint(index) {
-    document.getElementById("qrInfo").style.display = "none";
-  
-    const boxBox = document.querySelector(".boxBox");
     const changeEndpointContainer = document.getElementById("changeEndpointContainer");
     const infoBox = document.getElementById("infoBox");
+    const qrInfo = document.getElementById("qrInfo");
   
-    // Show infoBox
-    infoBox.style.display = "flex";
-  
-    // Show and animate boxBox and changeEndpointContainer
-    boxBox.classList.remove("popup-animate");
-    changeEndpointContainer.classList.remove("popup-animate");
-  
-    // Force reflow to reset animation
-    void boxBox.offsetWidth;
-    void changeEndpointContainer.offsetWidth;
-  
-    // Show changeEndpointContainer
-    changeEndpointContainer.hidden = false;
-  
-    // Add animation classes to trigger popup animation
-    boxBox.classList.add("popup-animate");
-    changeEndpointContainer.classList.add("popup-animate");
+    // Switch view
+    qrInfo.style.display = "none";
+    changeEndpointContainer.style.display = "block";
+    infoBox.style.display = "flex"; // Show modal overlay
   
     document.getElementById("index").value = index;
-  
+
+    // Apply permissions to UI
+    const perms = window.currentUserPermissions || {};
+    
+    const fields = {
+        'new_endpoint': 'custom_alias',
+        'new_expiry': 'expiry',
+        'new_uses': 'uses',
+        'new_redirect': 'redirect'
+    };
+
+    // Handle standard fields
+    for (const [id, perm] of Object.entries(fields)) {
+        const el = document.getElementById(id);
+        if (el) {
+            // Find the parent container (.form-group or similar wrapper)
+            // For new_redirect (checkbox), the parent might be the label, and that label's parent is the div
+            let container = el.closest('.form-group');
+            
+            // Special case for redirect toggle which is structured differently
+            if (id === 'new_redirect') {
+                container = el.closest('div[style*="display: flex"]');
+            }
+
+            if (!perms[perm]) {
+                el.disabled = true;
+                if (container) container.style.display = 'none';
+            } else {
+                el.disabled = false;
+                if (container) {
+                     if (id === 'new_redirect') {
+                         container.style.display = 'flex';
+                     } else {
+                         container.style.display = 'block';
+                     }
+                }
+            }
+        }
+    }
+    
+    // Handle password button
+    const passBtn = document.getElementById("showPasswordButton");
+    const passwordContainer = document.querySelector(".passwordContainerSidebySide");
+
+    if (passBtn) {
+        if (!perms['password']) {
+            passBtn.style.display = 'none';
+            if (passwordContainer) passwordContainer.style.display = 'none'; // Ensure inputs are also hidden
+        } else {
+             // Only show button initially, container is toggled by button
+             passBtn.style.display = 'flex'; 
+        }
+    }
+
     getEndpointData(index).then((endpointData) => {
       function changeData(id, value) {
-        if (
-          (id === "new_expiry" && document.getElementById(id).value === "") ||
-          (id === "new_expiry" && document.getElementById(id).value !== "")
-        ) {
-          document.getElementById(id).value = value;
-        } else if (id !== "new_redirect") {
-          document.getElementById(id).value = value;
-        } else if (value === "on") {
-          document.getElementById("new_redirect").checked = true;
-          buttonNoAnimation();
-        } else if (value === "off") {
-          document.getElementById("new_redirect").checked = false;
-          buttonNoAnimation();
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (id === "new_expiry") {
+            // value is YYYY-MM-DD HH:MM
+            // input type=datetime-local expects YYYY-MM-DDTHH:MM
+            if (value && value.includes(' ')) {
+                el.value = value.replace(' ', 'T');
+            } else {
+                el.value = value;
+            }
+        } else if (id === "new_redirect") {
+            el.checked = (value === "on");
+        } else {
+            el.value = value;
         }
       }
   
-      setTimeout(() => {
-        initializePlaceholders();
-      }, 1);
+      // Reset placeholders if using input.js, but we are not.
+      // However, we mock initializePlaceholders in index.html, so it's fine.
+      if (typeof initializePlaceholders === 'function') {
+        setTimeout(() => initializePlaceholders(), 1);
+      }
   
       for (const key in endpointData) {
         if (endpointData[key]) {
@@ -55,27 +97,13 @@ function editEndpoint(index) {
       }
     });
   
-    const passwordContainer = document.querySelector(
-      "#changeEndpointContainer > form > div.passwordContainerSidebySide"
-    );
-    passwordContainer.style.display = "none";
-  
-    const buttonUrlContainer = document.querySelector("#showPasswordButton");
-    buttonUrlContainer.style.display = "flex";
-  
-    function buttonNoAnimation() {
-      const style = document.createElement("style");
-      style.innerHTML = `
-        .checkbox-wrapper-6 .tgl:checked + .tgl-btn:after,
-        .checkbox-wrapper-6 .tgl-light + .tgl-btn:after,
-        .checkbox-wrapper-6 .tgl-light + .tgl-btn {
-          transition: none !important;
-        }
-      `;
-      document.head.appendChild(style);
-  
-      setTimeout(() => {
-        style.remove();
-      }, 1);
+    // Reset password UI
+    if (passwordContainer && perms['password']) {
+        passwordContainer.style.display = "none";
     }
-  }
+  
+    const buttonUrlContainer = document.getElementById("showPasswordButton");
+    if (buttonUrlContainer && perms['password']) {
+        buttonUrlContainer.style.display = "flex";
+    }
+}

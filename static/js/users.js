@@ -45,6 +45,7 @@ function addAccount(username, admin, expiry) {
     qrButton.src = '/static/img/qr.svg';
     qrButton.alt = 'QR';
     qrButton.onclick = () => makeQR(`/gAeNh/${username}`);
+    qrButton.onmouseenter = () => preloadQR(`/gAeNh/${username}`);
 
     const editButton = document.createElement('img');
     editButton.className = 'iconEdit';
@@ -56,7 +57,7 @@ function addAccount(username, admin, expiry) {
     removeButton.className = 'iconRemove';
     removeButton.src = '/static/img/trashcan.svg';
     removeButton.alt = 'Remove';
-    removeButton.onclick = () => removeEndpoint(username);
+    removeButton.onclick = (event) => removeEndpoint(username, event);
 
     // Append buttons to the container
     urlButtonContainer.append(copyButton, qrButton, editButton, removeButton);

@@ -6,3 +6,4 @@ requests
 Pillow
 validators
 qrcode
+user-agents

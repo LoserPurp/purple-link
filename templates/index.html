@@ -1,236 +1,1068 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        {% include 'head.html' %}
-        <title>Purple Link</title>
-    </head>
-    <body>
-        <!-- Flash messages block -->
+<html lang="en">
+<head>
+    {% include 'head.html' %}
+    <title>Purple Link | Dashboard</title>
+</head>
+<body>
+    <!-- Flash Messages -->
+    <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-            <div class="flashMessage">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}" role="alert">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
+    </div>
 
-    <div class="project noice">
-        <div class="addUrlContainer">
-        <div class="projectContainer">
-        <div class="addUrlContainer">
-            <div class="charlesLeclerc noice">
-                <form method="POST" action="/dashboard" class="addUrlFormContainer">
-                    <div class="h2Text noice">
-                        <h1 class="addUrlHeader">Add URL</h1>
-                        <a onclick="setExpiry()" class="noice" style="font-size: 12px;text-decoration: underline; cursor: pointer;">
-                            <!-- Advanced Options -->
-                            <img class="icons iconAdvanced" src="{{ url_for('static', filename='img/advanced.svg') }}" alt="Advanced Options">
-                        </a>
-                        <!-- <img class="iconTimer" src="{{ url_for('static', filename='img/timer.svg') }}" alt="Remove" onclick="setExpiry()"> -->
-                    </div>
-                    <div class="mobileUI">
-                    <div class="enterUrlContainer noice">
-
-                    <div class="inputContainer inputContainerSpacing">
-                        <input type="text" id="url" name="url" onfocus="updatePlaceHolder('url')" style="width: 250px;">
-                        <div class="labelContainer">
-                            <p id="urlplaceholder" class="placeholder" style="left: 139px;">Enter URL</p>
-                        </div>
-                    </div> 
-
-        
-                    </div>
-                    <div id="expiry" style="display: block; bottom: 355px;" hidden="true">
-                        
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="path" name="path" onfocus="updatePlaceHolder('path')" style="width: 250px;">
-                            <div class="labelContainer">
-                                <p id="pathplaceholder" class="placeholder" style="left: 139px;">Custom Endpoint</p>
-                            </div>
-                        </div> 
-                                          
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="datetime-local" id="expire" name="expire" onfocus="updatePlaceHolder('expire')" style="width: 250px;">
-                            <div class="labelContainer">
-                                <p id="expireplaceholder" class="placeholder placeholderWithText" style="left: 139px;">Hours Active</p>
-                            </div>
-                        </div> 
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="number" id="maxUses" name="maxUses" onfocus="updatePlaceHolder('maxUses')" style="width: 250px;">
-                            <div class="labelContainer">
-                                <p id="maxUsesplaceholder" class="placeholder" style="left: 139px;">Max Uses</p>
-                            </div>
-                        </div> 
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="pass" name="pass" onfocus="updatePlaceHolder('pass')" style="width: 250px;">
-                            <div class="labelContainer">
-                                <p id="passplaceholder" class="placeholder" style="left: 139px;">Endpoint Password</p>
-                            </div>
-                        </div> 
-
-                        <div style="display: flex;width: 312px;flex-direction: row;height: 41.4px;justify-content: center; margin-bottom: 20px;">
-                            <div style=" width: 261.6px;display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                                <p style="font-size: 18px; color: var(--text-color);">Redirect</p>
-                                <div class="checkbox-wrapper-6">
-                                    <input class="tgl tgl-light" id="redirect" name="redirect" type="checkbox"/>
-                                    <label class="tgl-btn" for="redirect">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-                    <div class="buttonUrlContainer" id="buttonUrlContainer" style="bottom: 305px;">
-                        <button type="submit">Submit</button>
-                    </div>   
-                </form>
-                <a href="/settings" class="buttonSettings"><i class="fa-solid fa-gear" ></i></a>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Purple Link" style="width: 2rem; height: 2rem;">
+                <span>Purple Link</span>
             </div>
-        </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchView('dashboard', this)">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('analytics', this)">
+                    <i class="fas fa-chart-bar"></i> <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('settings', this)">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
 
-        <div class="endpointListContainer">
-            <div class="topNav"><p>URL List</p></div>
-
-            <div id="endpointList">
-                <div class="urlListContainer">
-                    <div class="grid-header">
-                        <div class="grid-header-item">Endpoint</div>
-                        <div class="grid-header-item">URL</div>
-                        <div class="grid-header-item">Expiry</div>
-                        <div class="grid-header-item">Uses</div>
-                        <div class="grid-header-item">Redirect</div>
-                        <div class="grid-header-item">Actions</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-section active">
+                <div class="dashboard-header">
+                    <div class="mobile-brand">
+                        <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Purple Link" class="mobile-logo">
+                        <span class="mobile-title">Purple Link</span>
                     </div>
-                
-                    {% for key, path, url, uses, expiry, redirect in entries %}
-                        <div class="grid-content">
-                            <div class="grid-item"><a class="urlEndpoint" id="endpoint{{key}}" href="{{ path }}">{{ path }}</a></div>
-                            <div class="grid-item"><a class="theURL" id="endpointUrl{{key}}" href="{{ url }}">{{ url }}</a></div>
-                            <div class="grid-item"><a>{{ uses }}</a></div>
-                            <div class="grid-item"><a>{{ expiry }}</a></div>
-                            <div class="grid-item"><a>{{ redirect }}</a></div>
-                            <div class="grid-item">
-                                <div class="urlButtonContainer">
-                                    <img class="icons iconCopy" src="{{ url_for('static', filename='img/copy.svg') }}" alt="Copy" onclick="copyEndpoint('{{ key }}')">
-                                    <img class="icons iconQR" src="{{ url_for('static', filename='img/qr.svg') }}" alt="Remove" onclick="makeQR('{{ path }}')">
-                                    <img class="icons iconEdit" src="{{ url_for('static', filename='img/edit.svg') }}" alt="Edit" onclick="editEndpoint('{{ key }}')">
-                                    <img class="icons iconRemove" src="{{ url_for('static', filename='img/trashcan.svg') }}" alt="Remove" onclick="removeEndpoint('{{ key }}')">
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+                    <h2>Dashboard</h2>
                 </div>
-                
-            </div>
-        </div>
 
-        <div class="infoBox" id="infoBox" style="display: none;">
-            <div class="boxBox draggable noice">
-                <div class="drag-headerContainer" style="display: flex;flex-direction: row;align-items: center;">
-                    <div class="drag-header"></div>
-                    <div id="closeBoxBox" class="boxBoxClose" onclick="closeBoxBox()">
-                        <img class="icons iconX" src="{{ url_for('static', filename='img/x.svg') }}" alt="x">
-                    </div>
-                </div>
-                <div id="changeEndpointContainer">
-                    <div class="endpointContainer">
-                        <h2>Change Endpoint</h2>
-                    </div>
-                    
-                    
-                    <form method="POST" action="/change_endpoint">
-
-                        <input type="text" id="index" name="index" required style="display: none;">
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_endpoint" name="new_endpoint" onfocus="updatePlaceHolder('new_endpoint')">
-                            <div class="labelContainer labelContainerLong">
-                                <p id="new_endpointplaceholder" class="placeholder" style="left: 139px;">Enter URL</p>
+                <!-- Add URL Section -->
+                <div class="add-url-panel">
+                    {% if permissions.get('create', 1) %}
+                    <form method="POST" action="/dashboard">
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="flex: 1;">
+                                <input type="text" id="url" name="url" placeholder="Enter original URL" required>
                             </div>
-                        </div> 
-    
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_url" name="new_url" onfocus="updatePlaceHolder('new_url')">
-                            <div class="labelContainer labelContainerLong">
-                                <p id="new_urlplaceholder" class="placeholder" style="left: 139px;">Change URL</p>
-                            </div>
-                        </div> 
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="datetime-local" id="new_expiry" name="new_expiry">
-                            <div class="labelContainer labelContainerLong">
-                                <p id="new_expiryplaceholder" class="placeholder placeholderWithText" style="left: 139px;">Change Expiry</p>
-                            </div>
-                        </div> 
-
-
-                        <div class="inputContainer inputContainerSpacing">
-                            <input type="text" id="new_uses" name="uses" onfocus="updatePlaceHolder('new_uses')">
-                            <div class="labelContainer labelContainerLong">
-                                <p id="new_usesplaceholder" class="placeholder" style="left: 139px;">Uses Left</p>
-                            </div>
-                        </div> 
-                    
-                        
-                        <div style="margin-bottom: 20px;height: 41px; left: 39px;position: relative;" id="showPasswordButton"><a onclick="showPassword()" class="button">Change Password</a></div>                    
-                        
-                        <div class="passwordContainerSidebySide" style="display: none;">
-
-
-                            <div class="inputContainer inputContainerSpacing">
-                                <input type="text" id="old_password" name="old_password" onfocus="updatePlaceHolder('old_password')">
-                                <div class="labelContainer labelContainerShort">
-                                    <p id="old_passwordplaceholder" class="placeholder" style="left: 139px;">Old Password</p>
-                                </div>
-                            </div> 
-
-                            <div class="inputContainer inputContainerSpacing">
-                                <input type="text" id="new_password" name="new_password" onfocus="updatePlaceHolder('new_password')">
-                                <div class="labelContainer labelContainerShort">
-                                    <p id="new_passwordplaceholder" class="placeholder" style="left: 139px;">New Password</p>
-                                </div>
-                            </div> 
+                            <button type="submit" id="buttonUrlContainer">Shorten</button>
+                            {% if permissions.get('custom_alias') or permissions.get('expiry') or permissions.get('uses') or permissions.get('password') or permissions.get('redirect') %}
+                            <button type="button" class="btn btn-icon" onclick="setExpiry()" title="Advanced Options">
+                                <i class="fas fa-sliders-h"></i>
+                            </button>
+                            {% endif %}
                         </div>
-                        
-                        <div style="margin-bottom: 20px;height: 41px;left: 39px;position: relative;display: flex;align-items: center;width: 421px;justify-content: space-between;">
-                            <p style="font-size: 18px; color: var(--text-color);">Redirect</p>
-                            <div class="checkbox-wrapper-6">
-                                <input class="tgl tgl-light" id="new_redirect" name="new_redirect" type="checkbox"/>
-                                <label class="tgl-btn" for="new_redirect">
+
+                        <!-- Advanced Options (Hidden by default) -->
+                        <div id="expiry" class="advanced-options">
+                            {% if permissions.get('custom_alias') %}
+                            <div>
+                                <label for="path" style="font-size: 0.8rem; color: var(--text-muted);">Custom Endpoint (Optional)</label>
+                                <input type="text" id="path" name="path" placeholder="e.g. my-link">
                             </div>
+                            {% endif %}
+                            {% if permissions.get('expiry') %}
+                            <div>
+                                <label for="expire" style="font-size: 0.8rem; color: var(--text-muted);">Expires At</label>
+                                <input type="datetime-local" id="expire" name="expire">
+                            </div>
+                            {% endif %}
+                            {% if permissions.get('uses') %}
+                            <div>
+                                <label for="maxUses" style="font-size: 0.8rem; color: var(--text-muted);">Max Uses</label>
+                                <input type="number" id="maxUses" name="maxUses" placeholder="-1 for unlimited">
+                            </div>
+                            {% endif %}
+                            {% if permissions.get('password') %}
+                            <div>
+                                <label for="pass" style="font-size: 0.8rem; color: var(--text-muted);">Password Protection</label>
+                                <input type="text" id="pass" name="pass" placeholder="Optional password">
+                            </div>
+                            {% endif %}
+                            {% if permissions.get('redirect') %}
+                            <div style="display: flex; align-items: center; gap: 10px; height: 100%; padding-top: 1.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="redirect" name="redirect">
+                                    <span class="slider"></span>
+                                </label>
+                                <span style="font-size: 0.9rem;">Redirect Page</span>
+                            </div>
+                            {% endif %}
                         </div>
-                        
-                        <button style="margin-left: 39px;" type="submit">Submit</button>
                     </form>
+                    {% else %}
+                    <p style="color: var(--text-muted); text-align: center;">You do not have permission to create new links.</p>
+                    {% endif %}
                 </div>
-                <div id="qrInfo">
-                    <div class="qrContainer">
-                    <img id="qrCode" style="height: 170px; padding-right: 3px;">
-                    <div style="display: grid;width: fit-content;grid-template-columns: 80px 1fr; padding-left: 3px;">
-                        <label>Endpoint:</label>
-                        <a class="textInQRCode" id="endpointPath"></a>
-                        <label>Url:</label>
-                        <a class="textInQRCode" id="orgUrl"></a>
-                        <label>Expiry:</label>
-                        <p class="textInQRCode" id="endpointExpiry"></p>
-                        <label>Password:</label>
-                        <p class="textInQRCode" id="endpointPass"></p>
-                        <label>Uses left:</label>
-                        <p class="textInQRCode" id="endpointUses"></p>
-                    </div>   
-                    </div>       
-                    <button class="qrDownload" onclick="downloadQr()"> Download QR Code</button>
+
+                <!-- URL List -->
+                <div class="url-list-container" id="endpointList">
+                    <div class="url-list-header">
+                        <div>Endpoint</div>
+                        <div>Original URL</div>
+                        <div>Uses</div>
+                        <div>Expires</div>
+                        <div>Redir</div>
+                        <div style="text-align: right;">Actions</div>
+                    </div>
+                    <div class="url-list-body">
+                        {% for key, path, url, uses, expiry, redirect in entries %}
+                        <div class="url-row">
+                            <div style="overflow: hidden; text-overflow: ellipsis;">
+                                <a href="{{ path }}" target="_blank" class="urlEndpoint" id="endpoint{{key}}">
+                                    {% if path.startswith('/') %}
+                                        /<span class="endpoint-text">{{ path[1:] }}</span>
+                                    {% else %}
+                                        {{ path }}
+                                    {% endif %}
+                                </a>
+                                {% if url.startswith('http://') %}
+                                <div class="badge-insecure">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>Insecure</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div style="overflow: hidden; text-overflow: ellipsis;">
+                                {% set display_url = url[:-1] if url.endswith('/') else url %}
+                                <a href="{{ url }}" target="_blank" class="theURL" id="endpointUrl{{key}}">
+                                    {% if display_url.startswith('https://') %}
+                                        <span class="url-text">{{ display_url[8:] }}</span>
+                                    {% elif display_url.startswith('http://') %}
+                                        <span class="url-text">{{ display_url[7:] }}</span>
+                                    {% else %}
+                                        <span class="url-text">{{ display_url }}</span>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div>{{ uses }}</div>
+                            <div><a href="#" style="color: var(--text-color); pointer-events: none;">{{ expiry }}</a></div>
+                            <div>
+                                {% if redirect %}
+                                <span style="color: var(--success-color);"><i class="fas fa-check"></i></span>
+                                {% else %}
+                                <span style="color: var(--text-muted);"><i class="fas fa-times"></i></span>
+                                {% endif %}
+                            </div>
+                            <div class="url-actions">
+                                <button class="action-btn" onclick="copyEndpoint('{{ key }}')" title="Copy">
+                                    <img class="action-icon" src="{{ url_for('static', filename='img/copy.svg') }}">
+                                </button>
+                                <button class="action-btn" onclick="makeQR('{{ path }}')" onmouseenter="preloadQR('{{ path }}')" title="QR Code">
+                                    <img class="action-icon" src="{{ url_for('static', filename='img/qr.svg') }}">
+                                </button>
+                                <button class="action-btn" onclick="editEndpoint('{{ key }}')" title="Edit">
+                                    <img class="action-icon" src="{{ url_for('static', filename='img/edit.svg') }}">
+                                </button>
+                                <button class="action-btn delete-btn" onclick="removeEndpoint('{{ key }}', event)" title="Delete">
+                                    <img class="action-icon delete-icon" src="{{ url_for('static', filename='img/trashcan.svg') }}">
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analytics-view" class="view-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="mobile-brand">
+                        <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Purple Link" class="mobile-logo">
+                        <span class="mobile-title">Purple Link</span>
+                    </div>
+                    <h2>Analytics</h2>
+                    <button class="btn btn-icon" onclick="loadAnalytics()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                
+                <div class="stats-grid">
+                     <div class="stat-card">
+                        <h3>Most Used Endpoints</h3>
+                        <canvas id="endpointsChart"></canvas>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Device Types</h3>
+                        <canvas id="devicesChart"></canvas>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Top User Agents</h3>
+                        <div id="topAgentsList" class="stat-list"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card" style="margin-top: 1.5rem;">
+                    <h3>Recent Access Logs</h3>
+                    <div class="url-list-container" style="max-height: 400px; overflow: hidden; display: flex; flex-direction: column;">
+                        <div class="url-list-header" style="grid-template-columns: 1fr 1fr 1fr 2fr;">
+                            <div>Time</div>
+                            <div>IP Address</div>
+                            <div>Endpoint</div>
+                            <div>User Agent</div>
+                        </div>
+                        <div class="url-list-body" id="logsTableBody">
+                            <!-- Logs will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="view-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="mobile-brand">
+                        <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Purple Link" class="mobile-logo">
+                        <span class="mobile-title">Purple Link</span>
+                    </div>
+                    <h2>Settings</h2>
+                </div>
+
+                <div class="settings-container">
+                    <div class="settings-tabs">
+                        <button class="tab-btn active" onclick="openTab('account', this)">Account</button>
+                        <button class="tab-btn" onclick="openTab('general', this)">General</button>
+                        {% if session['group'] == 'administrator' %}
+                        <button class="tab-btn" onclick="openTab('users', this)">Users</button>
+                        {% endif %}
+                        <button class="tab-btn" onclick="openTab('licensing', this)">Licensing</button>
+                    </div>
+
+                    <!-- Account Settings -->
+                    <div id="account" class="settings-section active">
+                        <div class="settings-card">
+                            <h3>Profile</h3>
+                            <div class="info-row">
+                                <span class="label-text">Username</span>
+                                <span>{{ session['username'] }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label-text">Role</span>
+                                <span style="text-transform: capitalize;">{{ session['group'] }}</span>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Change Password</h3>
+                            <form method="POST" action="{{ url_for('settings') }}">
+                                <div class="form-row">
+                                    <div>
+                                        <label class="label-text">Current Password</label>
+                                        <input type="password" name="current_password" required>
+                                    </div>
+                                    <div>
+                                        <label class="label-text">New Password</label>
+                                        <input type="password" name="new_password" required>
+                                    </div>
+                                    <div>
+                                        <label class="label-text">Confirm New Password</label>
+                                        <input type="password" name="confirm_password" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn">Update Password</button>
+                            </form>
+                        </div>
+
+                        <div class="settings-card" style="border-color: var(--danger-color);">
+                            <h3 style="color: var(--danger-color);">Session</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 1rem;">End your current session.</p>
+                            <a href="/logout" class="btn" style="background-color: var(--danger-color); color: white; width: 100%;">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- General Settings -->
+                    <div id="general" class="settings-section">
+                        <div class="settings-card">
+                            <h3>Preferences</h3>
+                            <div class="info-row" style="align-items: center;">
+                                <span class="label-text">Dark Mode</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="info-row" style="align-items: center;">
+                                <span class="label-text">Show insecure Badge</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="badgeToggle" onchange="toggleBadge()" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="info-row" style="align-items: center;">
+                                <span class="label-text">Always Show Delete Tip</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="tipToggle" onchange="toggleTip()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Settings (Admin Only) -->
+                    {% if session['group'] == 'administrator' %}
+                    <div id="users" class="settings-section">
+                        <div class="settings-card">
+                            <div class="dashboard-header" style="margin-bottom: 1rem;">
+                                <h3>User Management</h3>
+                                <button class="btn" onclick="openAddUserModal()">
+                                    <i class="fas fa-plus"></i> Add User
+                                </button>
+                            </div>
+                            <p style="color: var(--text-muted); margin-bottom: 1rem;">Manage users and permissions.</p>
+                            
+                            <div class="url-list-container" style="height: auto; max-height: 400px;">
+                                <div class="url-list-header" style="grid-template-columns: 2fr 1fr 100px;">
+                                    <div>Username</div>
+                                    <div>Role</div>
+                                    <div style="text-align: right;">Actions</div>
+                                </div>
+                                <div class="url-list-body" id="userListBody">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Licensing -->
+                    <div id="licensing" class="settings-section">
+                        <div class="settings-card">
+                            <h3>Attribution</h3>
+                            <p style="color: var(--text-muted);">
+                                Vectors and icons by <a href="https://www.svgrepo.com" target="_blank">SVG Repo</a>.
+                            </p>
+                        </div>
+                         <div class="settings-card">
+                            <h3>Version</h3>
+                            <a href="https://github.com/loserpurp/purple-link" target="_blank">Purple Link v2.0</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Edit/QR Modal (infoBox) -->
+    <div id="infoBox" class="modal-overlay">
+        <div class="boxBox modal-content">
+            <div id="closeBoxBox" class="modal-close" onclick="closeBoxBox()">
+                <i class="fas fa-times"></i>
+            </div>
+
+            <!-- Edit Endpoint Form -->
+            <div id="changeEndpointContainer">
+                <h2 style="margin-bottom: 1.5rem;">Edit Endpoint</h2>
+                <form method="POST" action="/change_endpoint">
+                    <input type="text" id="index" name="index" required style="display: none;">
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Endpoint</label>
+                        <input type="text" id="new_endpoint" name="new_endpoint">
+                        <p id="new_endpointplaceholder" style="display: none;">Enter URL</p> <!-- For JS compat -->
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Destination URL</label>
+                        <input type="text" id="new_url" name="new_url">
+                        <p id="new_urlplaceholder" style="display: none;">Change URL</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Expiry</label>
+                        <input type="datetime-local" id="new_expiry" name="new_expiry">
+                        <p id="new_expiryplaceholder" style="display: none;">Change Expiry</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Uses Left</label>
+                        <input type="text" id="new_uses" name="uses">
+                        <p id="new_usesplaceholder" style="display: none;">Uses Left</p>
+                    </div>
+
+                    <div class="form-group" id="showPasswordButton">
+                        <button type="button" class="btn" onclick="showPassword()" style="width: 100%; background: var(--surface-color); border: 1px solid var(--border-color);">Change Password</button>
+                    </div>
+
+                    <div class="passwordContainerSidebySide" style="display: none; gap: 10px; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <input type="text" id="old_password" name="old_password" placeholder="Old Password">
+                            <p id="old_passwordplaceholder" style="display: none;"></p>
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="text" id="new_password" name="new_password" placeholder="New Password">
+                            <p id="new_passwordplaceholder" style="display: none;"></p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="font-size: 1rem;">Redirect Page</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="new_redirect" name="new_redirect">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- QR Info Container -->
+            <div id="qrInfo" style="display: none; flex-direction: column; align-items: center;">
+                <h2 style="margin-bottom: 1rem;">QR Code</h2>
+                <img id="qrCode" src="" alt="QR Code">
+                
+                <div class="qr-details" style="width: 100%;">
+                    <label>Endpoint:</label>
+                    <a id="endpointPath" target="_blank"></a>
+                    
+                    <label>URL:</label>
+                    <a id="orgUrl" target="_blank"></a>
+                    
+                    <label>Expiry:</label>
+                    <p id="endpointExpiry"></p>
+                    
+                    <label>Password:</label>
+                    <p id="endpointPass"></p>
+                    
+                    <label>Uses left:</label>
+                    <p id="endpointUses"></p>
+                </div>
+
+                <button class="btn" onclick="downloadQr()" style="margin-top: 1.5rem;">Download QR Code</button>
             </div>
         </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 style="margin-bottom: 1rem;">Are you sure?</h3>
+            <p style="margin-bottom: 2rem; color: var(--text-muted);">This action cannot be undone.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem;">
+                <button class="btn btn-cancel" onclick="closeConfirmModal()" style="background-color: var(--surface-color); border: 1px solid var(--border-color);">Cancel</button>
+                <button class="btn btn-danger" id="confirmBtn" style="background-color: var(--danger-color); border-color: var(--danger-color);">Delete</button>
+            </div>
+            <p id="quickDeleteTip" style="font-size: 0.8rem; color: var(--text-muted); opacity: 0.7; display: none;">
+                <i class="fas fa-info-circle"></i> Tip: Hold <b>Ctrl</b> or <b>Shift</b> to quick delete.
+            </p>
+        </div>
     </div>
-    </body>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAddUserModal()">&times;</span>
+            <h2>Add New User</h2>
+            <form id="addUserForm" onsubmit="handleAddUser(event)">
+                <div class="form-group">
+                    <label for="newUsername" style="display: block; margin-bottom: 0.5rem;">Username</label>
+                    <input type="text" id="newUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword" style="display: block; margin-bottom: 0.5rem;">Password</label>
+                    <input type="password" id="newPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="newGroup" style="display: block; margin-bottom: 0.5rem;">Group</label>
+                    <select id="newGroup" name="group" style="width: 100%; padding: 0.75rem; background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 6px;">
+                        <option value="user">User</option>
+                        <option value="administrator">Administrator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem;">Permissions</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Create Links</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="perm_create" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Custom Alias</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="perm_custom_alias">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Set Expiry</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="perm_expiry">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Max Uses</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="perm_uses">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Password Protect</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="perm_password">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Toggle Redirect</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="perm_redirect">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Create User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditUserModal()">&times;</span>
+            <h2>Edit User</h2>
+            <form id="editUserForm" onsubmit="handleEditUser(event)">
+                <input type="hidden" id="editUserId" name="id">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem;">Username</label>
+                    <input type="text" id="editUsername" name="username" disabled style="background: var(--bg-color); opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem;">New Password (leave blank to keep)</label>
+                    <input type="password" id="editPassword" name="password">
+                </div>
+                <div class="form-group">
+                    <label for="editGroup" style="display: block; margin-bottom: 0.5rem;">Group</label>
+                    <select id="editGroup" name="group" style="width: 100%; padding: 0.75rem; background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 6px;">
+                        <option value="user">User</option>
+                        <option value="administrator">Administrator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem;">Permissions</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Create Links</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="editPermCreate" name="perm_create">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Custom Alias</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="editPermCustom" name="perm_custom_alias">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Set Expiry</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="editPermExpiry" name="perm_expiry">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Max Uses</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="editPermUses" name="perm_uses">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Password Protect</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="editPermPassword" name="perm_password">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Toggle Redirect</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="editPermRedirect" name="perm_redirect">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/setExpiry.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/copyEndpoint.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/makeQR.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/editEndpoint.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/getEndpointData.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/removeEndpoint.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- input.js is omitted as we use native placeholders, but we might need to mock initializePlaceholders -->
+    <script>
+        // Mock initializePlaceholders to prevent errors in editEndpoint.js
+        function initializePlaceholders() {}
+        function updatePlaceHolder() {}
+
+        // View Switching Logic
+        function switchView(viewName, element) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            // Show selected view
+            document.getElementById(viewName + '-view').style.display = 'block';
+            
+            // Update active nav state
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Update URL hash
+            window.location.hash = viewName;
+
+            // Load analytics if that view is selected
+            if (viewName === 'analytics') {
+                loadAnalytics();
+            }
+        }
+
+        let endpointsChart = null;
+        let devicesChart = null;
+
+        function loadAnalytics() {
+            fetch('/api/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    renderChart(data.chartLabels, data.chartData);
+                    renderDeviceChart(data.deviceLabels, data.deviceData);
+                    renderTopAgents(data.mostUsedUserAgents);
+                    renderLogs(data.requests);
+                })
+                .catch(error => console.error('Error loading analytics:', error));
+        }
+
+        function getComputedStyleProp(prop) {
+            return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+        }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('endpointsChart').getContext('2d');
+            
+            // Get theme colors dynamically
+            const borderColor = getComputedStyleProp('--border-color');
+            const textColor = getComputedStyleProp('--text-muted');
+            const legendColor = getComputedStyleProp('--text-color');
+            const primaryColor = getComputedStyleProp('--primary-color');
+
+            if (endpointsChart) {
+                endpointsChart.destroy();
+            }
+
+            endpointsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Requests',
+                        data: data,
+                        backgroundColor: primaryColor,
+                        borderColor: primaryColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: borderColor },
+                            ticks: { color: textColor }
+                        },
+                        x: {
+                            grid: { color: borderColor },
+                            ticks: { color: textColor }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: legendColor } }
+                    }
+                }
+            });
+        }
+
+        function renderDeviceChart(labels, data) {
+            const ctx = document.getElementById('devicesChart').getContext('2d');
+            const legendColor = getComputedStyleProp('--text-color');
+            const primaryColor = getComputedStyleProp('--primary-color');
+            const surfaceColor = getComputedStyleProp('--surface-color'); // or text-muted for contrast
+
+            if (devicesChart) {
+                devicesChart.destroy();
+            }
+
+            devicesChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Device Types',
+                        data: data,
+                        backgroundColor: [
+                            primaryColor,
+                            'rgba(59, 130, 246, 0.7)', // Blue
+                            'rgba(16, 185, 129, 0.7)', // Green
+                            'rgba(245, 158, 11, 0.7)', // Amber
+                            'rgba(107, 114, 128, 0.7)' // Gray
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: { color: legendColor } 
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopAgents(agents) {
+            const list = document.getElementById('topAgentsList');
+            list.innerHTML = '';
+            agents.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;';
+                div.innerHTML = `
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;" title="${item.agent}">${item.agent}</span>
+                    <span style="color: var(--primary-color); font-weight: bold;">${item.count}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderLogs(logs) {
+            const tbody = document.getElementById('logsTableBody');
+            tbody.innerHTML = '';
+            // Show latest first
+            [...logs].reverse().forEach(log => {
+                const row = document.createElement('div');
+                row.className = 'url-row';
+                row.style.gridTemplateColumns = '1fr 1fr 1fr 2fr'; // Match header
+                row.innerHTML = `
+                    <div>${log.timestamp}</div>
+                    <div>${log.ip}</div>
+                    <div>${log.endpoint}</div>
+                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${log.agent}">${log.agent}</div>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Settings specific functions
+        function openTab(tabName, btnElement) {
+            // Hide all sections
+            document.querySelectorAll('.settings-section').forEach(el => el.classList.remove('active'));
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // Load users if users tab is selected
+            if (tabName === 'users') {
+                loadUsers();
+            }
+        }
+
+        // User Management Logic
+        function loadUsers() {
+            fetch('/api/users')
+                .then(res => res.json())
+                .then(users => {
+                    const tbody = document.getElementById('userListBody');
+                    tbody.innerHTML = '';
+                    users.forEach(user => {
+                        const row = document.createElement('div');
+                        row.className = 'url-row';
+                        row.style.gridTemplateColumns = '2fr 1fr 100px';
+                        
+                        let actions = '';
+                        const currentUsername = "{{ session['username'] }}";
+
+                        // Edit button
+                        // Clean user object for inline JSON
+                        const userStr = JSON.stringify(user).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                        actions += `
+                            <button class="action-btn" onclick='openEditUserModal(${userStr})' title="Edit">
+                                <img class="action-icon" src="{{ url_for('static', filename='img/edit.svg') }}">
+                            </button>
+                        `;
+
+                        if (user.username !== currentUsername) {
+                             actions += `
+                                <button class="action-btn delete-btn" onclick="deleteUser(${user.id}, '${user.username}')" title="Delete">
+                                    <img class="action-icon delete-icon" src="{{ url_for('static', filename='img/trashcan.svg') }}">
+                                </button>
+                             `;
+                        }
+
+                        row.innerHTML = `
+                            <div>${user.username}</div>
+                            <div style="text-transform: capitalize;">${user.user_group}</div>
+                            <div class="url-actions">
+                                ${actions}
+                            </div>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(err => console.error('Error loading users:', err));
+        }
+
+        function openAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'flex';
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'none';
+        }
+
+        function openEditUserModal(user) {
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editGroup').value = user.user_group;
+            document.getElementById('editPassword').value = '';
+
+            // Set permissions checkboxes
+            // Note: SQLite returns 1/0, JS treats 1 as true
+            document.getElementById('editPermCreate').checked = !!user.perm_create;
+            document.getElementById('editPermCustom').checked = !!user.perm_custom_alias;
+            document.getElementById('editPermExpiry').checked = !!user.perm_expiry;
+            document.getElementById('editPermUses').checked = !!user.perm_uses;
+            document.getElementById('editPermPassword').checked = !!user.perm_password;
+            document.getElementById('editPermRedirect').checked = !!user.perm_redirect;
+
+            document.getElementById('editUserModal').style.display = 'flex';
+        }
+
+        // Pass permissions to JS for editEndpoint logic
+        window.currentUserPermissions = {
+            create: {{ permissions.get('create', 0) | tojson }},
+            custom_alias: {{ permissions.get('custom_alias', 0) | tojson }},
+            expiry: {{ permissions.get('expiry', 0) | tojson }},
+            uses: {{ permissions.get('uses', 0) | tojson }},
+            password: {{ permissions.get('password', 0) | tojson }},
+            redirect: {{ permissions.get('redirect', 0) | tojson }}
+        };
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        function handleAddUser(e) {
+            e.preventDefault();
+            const form = document.getElementById('addUserForm');
+            const formData = new FormData(form);
+            
+            const permissions = {
+                create: formData.get('perm_create') === 'on',
+                custom_alias: formData.get('perm_custom_alias') === 'on',
+                expiry: formData.get('perm_expiry') === 'on',
+                uses: formData.get('perm_uses') === 'on',
+                password: formData.get('perm_password') === 'on',
+                redirect: formData.get('perm_redirect') === 'on'
+            };
+
+            const data = {
+                username: formData.get('username'),
+                password: formData.get('password'),
+                group: formData.get('group'),
+                permissions: permissions
+            };
+
+            fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    closeAddUserModal();
+                    form.reset();
+                    loadUsers();
+                } else {
+                    alert(result.error || 'Failed to create user');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred');
+            });
+        }
+
+        function handleEditUser(e) {
+            e.preventDefault();
+            const form = document.getElementById('editUserForm');
+            const formData = new FormData(form);
+            const userId = formData.get('id');
+            
+            const permissions = {
+                create: formData.get('perm_create') === 'on',
+                custom_alias: formData.get('perm_custom_alias') === 'on',
+                expiry: formData.get('perm_expiry') === 'on',
+                uses: formData.get('perm_uses') === 'on',
+                password: formData.get('perm_password') === 'on',
+                redirect: formData.get('perm_redirect') === 'on'
+            };
+
+            const data = {
+                group: formData.get('group'),
+                permissions: permissions
+            };
+            
+            const pass = formData.get('password');
+            if (pass) data.password = pass;
+
+            fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    closeEditUserModal();
+                    loadUsers();
+                } else {
+                    alert(result.error || 'Failed to update user');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred');
+            });
+        }
+
+        function deleteUser(userId, username) {
+            if (!confirm(`Are you sure you want to delete user "${username}"?`)) return;
+
+            fetch(`/api/users/${userId}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    loadUsers();
+                } else {
+                    alert(result.error || 'Failed to delete user');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred');
+            });
+        }
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Set initial state based on stored preference
+        if (localStorage.getItem('theme') === 'light') {
+            if (themeToggle) themeToggle.checked = false;
+        } else {
+            if (themeToggle) themeToggle.checked = true;
+        }
+
+        function toggleTheme() {
+            if (themeToggle.checked) {
+                // Switch to Dark
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                // Switch to Light
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Badge Toggle Logic
+        const badgeToggle = document.getElementById('badgeToggle');
+        
+        // Initialize badge state
+        // Default is shown (checked). If localStorage says 'hide', we uncheck and add class
+        if (localStorage.getItem('hideinsecureBadge') === 'true') {
+            if (badgeToggle) badgeToggle.checked = false;
+            document.body.classList.add('hide-insecure');
+        } else {
+            if (badgeToggle) badgeToggle.checked = true;
+            document.body.classList.remove('hide-insecure');
+        }
+
+        function toggleBadge() {
+            if (badgeToggle.checked) {
+                // Show Badge
+                document.body.classList.remove('hide-insecure');
+                localStorage.setItem('hideinsecureBadge', 'false');
+            } else {
+                // Hide Badge
+                document.body.classList.add('hide-insecure');
+                localStorage.setItem('hideinsecureBadge', 'true');
+            }
+        }
+
+        // Tip Toggle Logic
+        const tipToggle = document.getElementById('tipToggle');
+        
+        // Initialize tip toggle state
+        if (localStorage.getItem('alwaysShowDeleteTip') === 'true') {
+            if (tipToggle) tipToggle.checked = true;
+        } else {
+            if (tipToggle) tipToggle.checked = false;
+        }
+
+        function toggleTip() {
+            if (tipToggle.checked) {
+                localStorage.setItem('alwaysShowDeleteTip', 'true');
+            } else {
+                localStorage.setItem('alwaysShowDeleteTip', 'false');
+            }
+        }
+
+        // Handle view restoration based on hash
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1);
+            if (['dashboard', 'analytics', 'settings'].includes(hash)) {
+                const navItem = document.querySelector(`.nav-item[onclick*="'${hash}'"]`);
+                if (navItem) {
+                    switchView(hash, navItem);
+                }
+            }
+        });
+    </script>
+</body>
 </html>
